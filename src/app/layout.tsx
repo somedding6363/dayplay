@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "dayplay",
-  description: "매일 하나씩 열리는 미니게임",
+  description: "매일 한 개 이상의 게임이 열리는 게임 플랫폼",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
