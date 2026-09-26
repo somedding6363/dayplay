@@ -1,13 +1,6 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { suit } from "./fonts/suit";
 import "./styles/globals.css";
-
-const suit = localFont({
-  src: "./fonts/SUIT-Variable.woff2",
-  variable: "--font-suit",
-  display: "swap",
-  weight: "100 900",
-});
 
 export const metadata: Metadata = {
   title: "dayplay",
