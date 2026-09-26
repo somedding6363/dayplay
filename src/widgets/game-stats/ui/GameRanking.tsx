@@ -13,7 +13,7 @@ interface GameRankingProps {
 
 export function GameRanking({ entries, myRank }: GameRankingProps) {
   return (
-    <StatCard title="게임 순위" meta={`top ${entries.length}`}>
+    <StatCard title="게임 순위" meta={entries.length > 0 ? `top ${entries.length}` : undefined}>
       {entries.length === 0 ? (
         <p className="text-caption text-muted">아직 기록이 없어요.</p>
       ) : (

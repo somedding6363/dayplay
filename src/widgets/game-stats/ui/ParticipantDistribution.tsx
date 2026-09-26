@@ -13,7 +13,16 @@ export function ParticipantDistribution({
   myBucket,
   rangeLabels,
 }: ParticipantDistributionProps) {
-  const max = Math.max(...buckets, 1);
+  const max = Math.max(...buckets, 0);
+
+  if (max === 0) {
+    return (
+      <StatCard title="참가자 분포">
+        <p className="text-caption text-muted">아직 기록이 없어요.</p>
+      </StatCard>
+    );
+  }
+
   const summary =
     myBucket === undefined
       ? "참가자 기록 분포"
