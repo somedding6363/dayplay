@@ -88,7 +88,7 @@
   --text-caption-strong--font-weight: 600;
 
   --text-button-large: 18px;
-  --text-button-large--line-height: 1;
+  --text-button-large--line-height: 1.2;
   --text-button-large--letter-spacing: 0;
   --text-button-large--font-weight: 300;
 
@@ -98,7 +98,7 @@
   --text-button-utility--font-weight: 400;
 
   --text-fine-print: 12px;
-  --text-fine-print--line-height: 1;
+  --text-fine-print--line-height: 1.5;
   --text-fine-print--letter-spacing: -0.12px;
   --text-fine-print--font-weight: 400;
 
@@ -108,7 +108,7 @@
   --text-micro-legal--font-weight: 400;
 
   --text-nav-link: 12px;
-  --text-nav-link--line-height: 1;
+  --text-nav-link--line-height: 1.5;
   --text-nav-link--letter-spacing: -0.12px;
   --text-nav-link--font-weight: 400;
 }
