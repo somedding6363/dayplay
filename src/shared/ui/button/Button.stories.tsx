@@ -6,8 +6,8 @@ const meta = {
   component: Button,
   args: { children: "로그인" },
   argTypes: {
-    variant: { control: "inline-radio", options: ["primary", "soft"] },
-    size: { control: "inline-radio", options: ["sm", "md"] },
+    variant: { control: "inline-radio", options: ["primary", "soft", "ghost"] },
+    size: { control: "inline-radio", options: ["sm", "md", "icon"] },
     shape: { control: "inline-radio", options: ["pill", "rounded"] },
   },
 } satisfies Meta<typeof Button>;
@@ -20,7 +20,7 @@ export const Playground: Story = {};
 export const All: Story = {
   render: (args) => (
     <div className="flex flex-col gap-6 p-8">
-      {(["primary", "soft"] as const).map((variant) => (
+      {(["primary", "soft", "ghost"] as const).map((variant) => (
         <div key={variant} className="flex flex-wrap items-center gap-4">
           <span className="w-16 text-caption text-muted">{variant}</span>
           {(["pill", "rounded"] as const).map((shape) =>
