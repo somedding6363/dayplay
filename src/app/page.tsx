@@ -1,21 +1,33 @@
 import { connection } from "next/server";
-import { formatKstDate } from "@/shared/lib";
+import { dailySchedule, getDailyGames } from "@/entities/daily-game";
+import { dateKeyToKstDate, formatKstDate, toKstDateKey } from "@/shared/lib";
 import { PageContainer } from "@/shared/ui/page-container";
-import { DailyGame } from "@/widgets/daily-game";
-import { SiteFooter } from "@/widgets/site-footer";
-import { SiteHeader } from "@/widgets/site-header";
+import { DailyGame, type TodayGame } from "@/widgets/daily-game";
 import {
   GameRanking,
   MyBest,
   ParticipantDistribution,
   TodayParticipants,
 } from "@/widgets/game-stats";
-import { mockTodayGames } from "./mock-today-games";
-import { mockGameStats } from "./mock-game-stats";
+import { SiteFooter } from "@/widgets/site-footer";
+import { SiteHeader } from "@/widgets/site-header";
+import { mockGameMeta } from "./mock-game-meta";
+import { emptyGameStats, mockGameStats } from "./mock-game-stats";
+
+// E2E처럼 날짜를 고정해야 할 때만 DAYPLAY_TODAY(YYYY-MM-DD)를 쓴다. 형식이 틀리면 무시한다.
+function todayKey() {
+  const fixed = process.env.DAYPLAY_TODAY;
+  return fixed && /^\d{4}-\d{2}-\d{2}$/.test(fixed) ? fixed : toKstDateKey(new Date());
+}
 
 export default async function Home() {
   await connection();
-  const today = formatKstDate(new Date());
+  const today = todayKey();
+
+  const games: TodayGame[] = getDailyGames(dailySchedule, today).flatMap(({ gameId }) => {
+    const meta = mockGameMeta[gameId];
+    return meta ? [{ gameId, ...meta }] : [];
+  });
 
   return (
     <>
@@ -23,25 +35,23 @@ export default async function Home() {
       <PageContainer className="flex-1 pt-6 pb-16">
         <main>
           <DailyGame
-            games={mockTodayGames}
-            date={today}
+            games={games}
+            date={formatKstDate(dateKeyToKstDate(today))}
             asides={Object.fromEntries(
-              mockTodayGames.map(({ gameId }) => {
-                const stats = mockGameStats[gameId];
+              games.map(({ gameId }) => {
+                const stats = mockGameStats[gameId] ?? emptyGameStats;
                 return [
                   gameId,
-                  stats ? (
-                    <>
-                      <MyBest best={stats.myBest} />
-                      <GameRanking entries={stats.ranking} myRank={stats.myRank} />
-                      <ParticipantDistribution
-                        buckets={stats.buckets}
-                        myBucket={stats.myBucket}
-                        rangeLabels={stats.rangeLabels}
-                      />
-                      <TodayParticipants {...stats.participants} />
-                    </>
-                  ) : null,
+                  <>
+                    <MyBest best={stats.myBest} />
+                    <GameRanking entries={stats.ranking} myRank={stats.myRank} />
+                    <ParticipantDistribution
+                      buckets={stats.buckets}
+                      myBucket={stats.myBucket}
+                      rangeLabels={stats.rangeLabels}
+                    />
+                    <TodayParticipants {...stats.participants} />
+                  </>,
                 ];
               }),
             )}
