@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 const tokens = [
+  { name: "board-label", className: "text-board-label", spec: "88px · 800 · 1 · -3.5px" },
   { name: "hero-display", className: "text-hero-display", spec: "56px · 600 · 1.07 · -0.28px" },
   { name: "display-lg", className: "text-display-lg", spec: "40px · 600 · 1.1 · 0" },
   { name: "display-md", className: "text-display-md", spec: "34px · 600 · 1.47 · -0.374px" },
