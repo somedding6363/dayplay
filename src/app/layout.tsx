@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cx } from "@/shared/lib";
 import { suit } from "./fonts/suit";
 import "./styles/globals.css";
 
@@ -9,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className={`${suit.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html lang="ko" className={cx(suit.variable, "h-full antialiased")}>
+      <body className="flex min-h-full min-w-70 flex-col">{children}</body>
     </html>
   );
 }
