@@ -27,6 +27,8 @@
   --radius-sm: 16px;
   --radius-md: 24px;
 
+  --shadow-popover: 0 0 0 1px var(--color-hairline), 0 8px 24px rgb(20 20 20 / 0.08);
+
   --text-board-label: 88px;
   --text-board-label--line-height: 1;
   --text-board-label--letter-spacing: -3.5px;
