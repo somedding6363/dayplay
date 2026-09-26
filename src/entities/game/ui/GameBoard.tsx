@@ -12,7 +12,7 @@ export function GameBoard({ label, description, inputs, className, ...props }: G
     <button
       type="button"
       className={cx(
-        "relative flex aspect-board min-h-64 w-full items-end justify-between gap-6 overflow-hidden rounded-md bg-game-soft p-8 text-left text-game-ink sm:p-12",
+        "@container relative block aspect-board min-h-64 w-full overflow-hidden rounded-md bg-game-soft text-left text-game-ink",
         className,
       )}
       {...props}
@@ -24,21 +24,24 @@ export function GameBoard({ label, description, inputs, className, ...props }: G
         <span className="size-72 rounded-full bg-game-soft" />
       </span>
 
-      <span className="relative flex flex-col gap-3">
-        <span className="text-hero-display sm:text-board-label">{label}</span>
-        {description ? <span className="text-tagline">{description}</span> : null}
-      </span>
-
-      {inputs ? (
-        <span
-          aria-hidden="true"
-          className="relative flex flex-col gap-1 text-caption tracking-widest text-game uppercase"
-        >
-          {inputs.map((input) => (
-            <span key={input}>{input}</span>
-          ))}
+      {/* 화면 폭이 아니라 판 자체의 폭에 맞춰 크기를 바꾼다. */}
+      <span className="relative flex size-full items-end justify-between gap-6 p-8 @md:p-12">
+        <span className="relative flex flex-col gap-3">
+          <span className="text-hero-display break-keep @md:text-board-label">{label}</span>
+          {description ? <span className="text-tagline break-keep">{description}</span> : null}
         </span>
-      ) : null}
+
+        {inputs ? (
+          <span
+            aria-hidden="true"
+            className="relative flex flex-col gap-1 text-caption tracking-widest text-game uppercase"
+          >
+            {inputs.map((input) => (
+              <span key={input}>{input}</span>
+            ))}
+          </span>
+        ) : null}
+      </span>
     </button>
   );
 }
