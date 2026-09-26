@@ -17,15 +17,15 @@ const tokens = [
     className: "text-caption-strong",
     spec: "14px · 600 · 1.29 · -0.224px",
   },
-  { name: "button-large", className: "text-button-large", spec: "18px · 300 · 1 · 0" },
+  { name: "button-large", className: "text-button-large", spec: "18px · 300 · 1.2 · 0" },
   {
     name: "button-utility",
     className: "text-button-utility",
     spec: "14px · 400 · 1.29 · -0.224px",
   },
-  { name: "fine-print", className: "text-fine-print", spec: "12px · 400 · 1 · -0.12px" },
+  { name: "fine-print", className: "text-fine-print", spec: "12px · 400 · 1.5 · -0.12px" },
   { name: "micro-legal", className: "text-micro-legal", spec: "10px · 400 · 1.3 · -0.08px" },
-  { name: "nav-link", className: "text-nav-link", spec: "12px · 400 · 1 · -0.12px" },
+  { name: "nav-link", className: "text-nav-link", spec: "12px · 400 · 1.5 · -0.12px" },
 ];
 
 function TypographyScale() {
