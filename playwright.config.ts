@@ -18,6 +18,8 @@ export default defineConfig({
     command: `npm run build && npx next start -p ${port}`,
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
+    // 탭 전환을 검사하려면 게임이 두 개 이상 열리는 날이어야 해서 날짜를 고정한다.
+    env: { DAYPLAY_TODAY: "2026-09-28" },
     timeout: 180_000,
   },
 });
