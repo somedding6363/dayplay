@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-suit), -apple-system, "Apple SD Gothic Neo", sans-serif;
+}
+
+@theme {
+  --text-hero-display: 56px;
+  --text-hero-display--line-height: 1.07;
+  --text-hero-display--letter-spacing: -0.28px;
+  --text-hero-display--font-weight: 600;
+
+  --text-display-lg: 40px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: 0;
+  --text-display-lg--font-weight: 600;
+
+  --text-display-md: 34px;
+  --text-display-md--line-height: 1.47;
+  --text-display-md--letter-spacing: -0.374px;
+  --text-display-md--font-weight: 600;
+
+  --text-lead: 28px;
+  --text-lead--line-height: 1.14;
+  --text-lead--letter-spacing: 0.196px;
+  --text-lead--font-weight: 400;
+
+  --text-lead-airy: 24px;
+  --text-lead-airy--line-height: 1.5;
+  --text-lead-airy--letter-spacing: 0;
+  --text-lead-airy--font-weight: 300;
+
+  --text-tagline: 21px;
+  --text-tagline--line-height: 1.19;
+  --text-tagline--letter-spacing: 0.231px;
+  --text-tagline--font-weight: 600;
+
+  --text-body-strong: 17px;
+  --text-body-strong--line-height: 1.24;
+  --text-body-strong--letter-spacing: -0.374px;
+  --text-body-strong--font-weight: 600;
+
+  --text-body: 17px;
+  --text-body--line-height: 1.47;
+  --text-body--letter-spacing: -0.374px;
+  --text-body--font-weight: 400;
+
+  --text-dense-link: 17px;
+  --text-dense-link--line-height: 2.41;
+  --text-dense-link--letter-spacing: 0;
+  --text-dense-link--font-weight: 400;
+
+  --text-caption: 14px;
+  --text-caption--line-height: 1.43;
+  --text-caption--letter-spacing: -0.224px;
+  --text-caption--font-weight: 400;
+
+  --text-caption-strong: 14px;
+  --text-caption-strong--line-height: 1.29;
+  --text-caption-strong--letter-spacing: -0.224px;
+  --text-caption-strong--font-weight: 600;
+
+  --text-button-large: 18px;
+  --text-button-large--line-height: 1;
+  --text-button-large--letter-spacing: 0;
+  --text-button-large--font-weight: 300;
+
+  --text-button-utility: 14px;
+  --text-button-utility--line-height: 1.29;
+  --text-button-utility--letter-spacing: -0.224px;
+  --text-button-utility--font-weight: 400;
+
+  --text-fine-print: 12px;
+  --text-fine-print--line-height: 1;
+  --text-fine-print--letter-spacing: -0.12px;
+  --text-fine-print--font-weight: 400;
+
+  --text-micro-legal: 10px;
+  --text-micro-legal--line-height: 1.3;
+  --text-micro-legal--letter-spacing: -0.08px;
+  --text-micro-legal--font-weight: 400;
+
+  --text-nav-link: 12px;
+  --text-nav-link--line-height: 1;
+  --text-nav-link--letter-spacing: -0.12px;
+  --text-nav-link--font-weight: 400;
+}

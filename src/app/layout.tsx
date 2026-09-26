@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import { suit } from "./fonts/suit";
+import "./styles/globals.css";
 
 export const metadata: Metadata = {
   title: "dayplay",
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className="h-full antialiased">
+    <html lang="ko" className={`${suit.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
