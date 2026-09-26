@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test": "vitest run"
   },
   "dependencies": {
     "next": "16.3.6",
@@ -35,6 +36,7 @@
     "storybook": "^10.6.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vite": "^8.3.1"
+    "vite": "^8.3.1",
+    "vitest": "^4.1.11"
   }
 }
