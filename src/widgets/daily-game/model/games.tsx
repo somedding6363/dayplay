@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { Better, GameDefinition, GameRules } from "@/entities/game";
 import { reactionTime } from "@/features/games/reaction-time";
+import { tenSeconds } from "@/features/games/ten-seconds";
 import type { TodayGame } from "./types";
 
 // 게임마다 결과 타입이 달라서 등록부에는 결과 타입을 감춘 모양으로 담는다.
@@ -40,4 +41,6 @@ function toPlayable<TResult>(game: GameDefinition<TResult>): PlayableGame {
   };
 }
 
-export const playableGames = new Map([toPlayable(reactionTime)].map((game) => [game.gameId, game]));
+export const playableGames = new Map(
+  [toPlayable(reactionTime), toPlayable(tenSeconds)].map((game) => [game.gameId, game]),
+);
