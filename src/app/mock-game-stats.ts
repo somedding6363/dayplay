@@ -3,7 +3,6 @@ import type { RankingEntry } from "@/widgets/game-stats";
 // 기록 저장과 집계가 생기기 전까지 화면 틀을 잡기 위한 mock 데이터다.
 
 interface MockGameStats {
-  myBest?: string;
   ranking: RankingEntry[];
   myRank?: number;
   buckets: number[];
@@ -21,7 +20,6 @@ export const emptyGameStats: MockGameStats = {
 
 export const mockGameStats: Record<string, MockGameStats> = {
   "reaction-time": {
-    myBest: "168ms",
     ranking: [
       { rank: 1, nickname: "새벽세시", score: "118ms" },
       { rank: 2, nickname: "우유한잔", score: "124ms" },

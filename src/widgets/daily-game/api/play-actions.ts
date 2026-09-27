@@ -12,21 +12,36 @@ interface SaveInput {
   result: unknown;
 }
 
+interface SaveOptions {
+  maxTokenAgeMs?: number;
+}
+
 // 게임마다 결과 타입이 달라서 rules를 감싼 저장 함수로 등록한다.
-const savers = new Map<string, (input: SaveInput) => Promise<SaveGameResult<unknown>>>([
-  [reactionTime.id, (input) => saveGameResult(input, reactionTime)],
-]);
+const savers = new Map<
+  string,
+  (input: SaveInput, options?: SaveOptions) => Promise<SaveGameResult<unknown>>
+>([[reactionTime.id, (input, options) => saveGameResult(input, reactionTime, options)]]);
+
+// 로그인 직후 병합은 오늘 끝낸 play만 받으므로 토큰은 하루까지 인정한다.
+const MERGE_TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+const MERGE_MAX_RECORDS = 20;
 
 export type FinishPlayResult = SaveGameResult<unknown> | { status: "signed-out" };
 
+export interface StartedPlay {
+  playToken: string;
+  // 판정 날짜. 비로그인 기록을 이 날짜로 저장한다.
+  date: string;
+}
+
 // 오늘 열린 게임이면 play 토큰을 발급한다. 로그인하지 않아도 받는다.
-export async function startPlay(gameId: string): Promise<string | null> {
+export async function startPlay(gameId: string): Promise<StartedPlay | null> {
   const today = todayKey();
   const isOpen = getDailyGames(dailySchedule, today).some((game) => game.gameId === gameId);
   if (!savers.has(gameId) || !isOpen) {
     return null;
   }
-  return issuePlayToken(gameId, today);
+  return { playToken: await issuePlayToken(gameId, today), date: today };
 }
 
 // Server Function은 누구나 직접 호출할 수 있어서 인자를 모두 다시 검증한다.
@@ -47,4 +62,52 @@ export async function finishPlay(
     return { status: "rejected", reason: "invalid-token" };
   }
   return save({ userId: session.user.id, playToken, result });
+}
+
+export interface MergedRecord {
+  id: string;
+  // 계정에 저장됐거나 이미 저장된 play면 true. 이 기록은 브라우저에서 지워도 된다.
+  stored: boolean;
+}
+
+// 로그인 직후 이 브라우저의 오늘 기록을 계정에 저장한다. 지난 날짜 기록은 받지 않는다.
+export async function mergeLocalRecords(records: unknown): Promise<MergedRecord[]> {
+  const session = await auth();
+  if (!session?.user?.id || !Array.isArray(records)) {
+    return [];
+  }
+  const userId = session.user.id;
+  const today = todayKey();
+  const merged: MergedRecord[] = [];
+
+  for (const record of records.slice(0, MERGE_MAX_RECORDS)) {
+    if (
+      typeof record !== "object" ||
+      record === null ||
+      !("id" in record) ||
+      typeof record.id !== "string" ||
+      !("date" in record) ||
+      record.date !== today ||
+      !("gameId" in record) ||
+      typeof record.gameId !== "string" ||
+      !("playToken" in record) ||
+      typeof record.playToken !== "string" ||
+      !("rawResult" in record)
+    ) {
+      continue;
+    }
+    const save = savers.get(record.gameId);
+    if (!save) {
+      continue;
+    }
+    const saved = await save(
+      { userId, playToken: record.playToken, result: record.rawResult },
+      { maxTokenAgeMs: MERGE_TOKEN_MAX_AGE_MS },
+    );
+    merged.push({
+      id: record.id,
+      stored: saved.status === "saved" || saved.reason === "play-used",
+    });
+  }
+  return merged;
 }

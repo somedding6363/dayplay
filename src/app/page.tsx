@@ -1,20 +1,19 @@
 import { connection } from "next/server";
 import { dailySchedule, getDailyGames } from "@/entities/daily-game";
+import { getBestResults } from "@/entities/record/server";
+import { auth } from "@/features/auth/server";
 import { dateKeyToKstDate, formatKstDate, todayKey } from "@/shared/lib";
 import { PageContainer } from "@/shared/ui/page-container";
 import { DailyGame, playableGames, type TodayGame } from "@/widgets/daily-game";
-import {
-  GameRanking,
-  MyBest,
-  ParticipantDistribution,
-  TodayParticipants,
-} from "@/widgets/game-stats";
+import { GameRanking, ParticipantDistribution, TodayParticipants } from "@/widgets/game-stats";
 import { mockGameMeta } from "./mock-game-meta";
 import { emptyGameStats, mockGameStats } from "./mock-game-stats";
 
 export default async function Home() {
   await connection();
   const today = todayKey();
+  const session = await auth();
+  const bests = session ? await getBestResults(session.user.id) : {};
 
   const games: TodayGame[] = getDailyGames(dailySchedule, today).flatMap(({ gameId }) => {
     const meta = playableGames.get(gameId) ?? mockGameMeta[gameId];
@@ -30,13 +29,15 @@ export default async function Home() {
         <DailyGame
           games={games}
           date={formatKstDate(dateKeyToKstDate(today))}
+          today={today}
+          signedIn={Boolean(session)}
+          bests={bests}
           asides={Object.fromEntries(
             games.map(({ gameId }) => {
               const stats = mockGameStats[gameId] ?? emptyGameStats;
               return [
                 gameId,
                 <>
-                  <MyBest best={stats.myBest} />
                   <GameRanking entries={stats.ranking} myRank={stats.myRank} />
                   <ParticipantDistribution
                     buckets={stats.buckets}

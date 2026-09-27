@@ -25,7 +25,23 @@ test("시작하면 기다리고, 신호 후 누르면 ms 결과가 나온다", a
   await signalBoard(page).click();
 
   await expect(resultBoard(page)).toHaveAccessibleName(/^결과 \d+ms\./);
-  await expect(status(page)).toHaveText("로그인하면 기록이 저장돼요.");
+  await expect(status(page)).toHaveText("이 기기에 저장했어요. 로그인하면 계정에 저장돼요.");
+  await expect(section(page).getByRole("button", { name: "로그인하고 기록 저장" })).toBeVisible();
+});
+
+test("비로그인 기록은 내 최고 기록에 바로 보이고 새로고침해도 남는다", async ({ page }) => {
+  const myBest = page.getByRole("complementary").getByRole("region", { name: "내 최고 기록" });
+  await expect(myBest).toContainText("게임을 끝내면 여기에 기록이 남아요.");
+
+  await startBoard(page).click();
+  await waitingBoard(page).click();
+  await expect(resultBoard(page)).toBeVisible();
+  await expect(myBest).toContainText("-");
+  await expect(myBest).toContainText("이 기기");
+
+  await page.reload();
+  await expect(myBest).toContainText("-");
+  await expect(myBest).toContainText("이 기기");
 });
 
 test("신호 전에 누르면 무효 결과 -로 끝난다", async ({ page }) => {
