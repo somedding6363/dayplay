@@ -62,11 +62,13 @@ export default async function Home() {
                   <ParticipantDistribution
                     bars={buckets.map((count, bucket) => {
                       const { from, to } = distributionBucketRange(bucket, game.distribution);
+                      // 왼쪽 끝 칸은 가장 좋은 쪽으로 열려 있다. 작을수록 좋으면 "미만", 클수록 좋으면 "초과"다.
+                      const lower = game.better === "lower";
                       const label =
                         from === undefined
-                          ? `${game.formatValue(to ?? null)} 미만`
+                          ? `${game.formatValue(to ?? null)} ${lower ? "미만" : "초과"}`
                           : to === undefined
-                            ? `${game.formatValue(from)} 이상`
+                            ? `${game.formatValue(from)} ${lower ? "이상" : "이하"}`
                             : `${game.formatValue(from)} ~ ${game.formatValue(to)}`;
                       return { count, label };
                     })}
