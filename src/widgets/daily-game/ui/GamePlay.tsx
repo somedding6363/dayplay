@@ -2,16 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { GameBoard } from "@/entities/game";
+import { GamePanel } from "@/entities/game";
 import { recordLocalPlay } from "@/entities/record";
 import { SignInButton } from "@/features/auth";
+import { Button } from "@/shared/ui/button";
 import { finishPlay, startPlay, type StartedPlay } from "../api/play-actions";
 import type { BestResult } from "../model/best";
 import type { PlayableGame } from "../model/games";
 
 type Phase = "ready" | "playing" | "finished";
-
-const inputs = ["click", "touch", "space"];
 
 interface GamePlayProps {
   game: PlayableGame;
@@ -30,22 +29,19 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
   // 로그인하지 않아 이 브라우저에 저장했으면 로그인 버튼을 보여준다.
   const [savedLocally, setSavedLocally] = useState(false);
   const router = useRouter();
-  const boardRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const started = useRef<Promise<StartedPlay | null>>(Promise.resolve(null));
   // play를 다시 시작하면 이전 play의 저장 응답은 버린다.
   const playNumber = useRef(0);
-  // play를 끝낸 입력의 click이 새로 그려진 결과 판에 떨어져 바로 다시 시작하지 않도록,
-  // 이 판에서 누른 포인터 입력만 받는다. 키보드와 보조 기술의 click(detail 0)은 그대로 받는다.
-  const pressedHere = useRef(false);
-
+  // 결과를 읽을 수 있도록 결과 판에 focus를 둔다. 다시 하기 버튼에 두면, 게임이 끝나는 순간에도
+  // 계속 누르던 Space·Enter가 바로 다시 시작해 버린다.
   useEffect(() => {
     if (phase === "finished") {
-      boardRef.current?.focus();
+      panelRef.current?.focus();
     }
   }, [phase]);
 
   const start = () => {
-    pressedHere.current = false;
     playNumber.current += 1;
     started.current = startPlay(game.gameId).catch(() => null);
     setSavedLocally(false);
@@ -106,24 +102,20 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      <GameBoard
-        ref={boardRef}
-        label={finished ? resultText : "시작"}
-        description={finished ? "다시 하려면 누르세요." : game.instruction}
-        inputs={inputs}
-        aria-label={
-          finished
-            ? `결과 ${resultText}. 다시 시작하려면 누르세요.`
-            : `${game.name} 시작. 판을 누르거나 스페이스바를 누르세요.`
+      {/* 판은 보여주기만 하고, 시작은 판 아래쪽 버튼으로만 한다.
+          게임이 끝나는 순간에도 판을 계속 누르던 입력이 다시 시작으로 이어지지 않는다. */}
+      <GamePanel
+        ref={panelRef}
+        tabIndex={-1}
+        aria-live="polite"
+        label={finished ? resultText : game.name}
+        description={finished ? undefined : game.instruction}
+        action={
+          <Button type="button" onClick={start}>
+            {finished ? "다시 하기" : "시작"}
+          </Button>
         }
-        onPointerDown={() => {
-          pressedHere.current = true;
-        }}
-        onClick={(event) => {
-          if (event.detail === 0 || pressedHere.current) {
-            start();
-          }
-        }}
+        className="outline-none"
       />
       {savedLocally ? (
         <div className="flex justify-end">
