@@ -29,11 +29,6 @@
 
   --shadow-popover: 0 0 0 1px var(--color-hairline), 0 8px 24px rgb(20 20 20 / 0.08);
 
-  --text-board-label: 88px;
-  --text-board-label--line-height: 1;
-  --text-board-label--letter-spacing: -3.5px;
-  --text-board-label--font-weight: 800;
-
   --text-hero-display: 56px;
   --text-hero-display--line-height: 1.07;
   --text-hero-display--letter-spacing: -0.28px;
