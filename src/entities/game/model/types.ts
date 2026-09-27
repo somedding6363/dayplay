@@ -16,9 +16,10 @@ export interface GameRules<TResult> {
   color: GameColor;
   // 형식과 값 범위를 검증한다. 불가능한 값이면 null.
   parseResult: (input: unknown) => TResult | null;
-  // 높을수록 좋은 정수. 낮을수록 좋은 값은 부호를 뒤집는다.
-  toScore: (result: TResult) => number;
-  measure: (result: TResult) => number;
+  // 높을수록 좋은 정수. 낮을수록 좋은 값은 부호를 뒤집는다. 무효 결과는 null이다.
+  toScore: (result: TResult) => number | null;
+  // 분포에 쓰는 값. 무효 결과는 null이고 분포에 넣지 않는다.
+  measure: (result: TResult) => number | null;
   distribution: { min: number; max: number; bins: number; labels: [start: string, end: string] };
   formatResult: (result: TResult) => string;
   formatSummary: (result: TResult) => string;
