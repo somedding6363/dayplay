@@ -1,8 +1,8 @@
 import { connection } from "next/server";
 import { dailySchedule, getDailyGames } from "@/entities/daily-game";
-import { dateKeyToKstDate, formatKstDate, toKstDateKey } from "@/shared/lib";
+import { dateKeyToKstDate, formatKstDate, todayKey } from "@/shared/lib";
 import { PageContainer } from "@/shared/ui/page-container";
-import { DailyGame, type TodayGame } from "@/widgets/daily-game";
+import { DailyGame, playableGames, type TodayGame } from "@/widgets/daily-game";
 import {
   GameRanking,
   MyBest,
@@ -12,19 +12,16 @@ import {
 import { mockGameMeta } from "./mock-game-meta";
 import { emptyGameStats, mockGameStats } from "./mock-game-stats";
 
-// E2E처럼 날짜를 고정해야 할 때만 DAYPLAY_TODAY(YYYY-MM-DD)를 쓴다. 형식이 틀리면 무시한다.
-function todayKey() {
-  const fixed = process.env.DAYPLAY_TODAY;
-  return fixed && /^\d{4}-\d{2}-\d{2}$/.test(fixed) ? fixed : toKstDateKey(new Date());
-}
-
 export default async function Home() {
   await connection();
   const today = todayKey();
 
   const games: TodayGame[] = getDailyGames(dailySchedule, today).flatMap(({ gameId }) => {
-    const meta = mockGameMeta[gameId];
-    return meta ? [{ gameId, ...meta }] : [];
+    const meta = playableGames.get(gameId) ?? mockGameMeta[gameId];
+    // client로 넘기므로 컴포넌트와 함수는 빼고 표시 정보만 담는다.
+    return meta
+      ? [{ gameId, name: meta.name, instruction: meta.instruction, color: meta.color }]
+      : [];
   });
 
   return (

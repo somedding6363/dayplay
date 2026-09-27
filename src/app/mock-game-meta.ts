@@ -6,13 +6,8 @@ interface MockGameMeta {
   color: GameColor;
 }
 
-// 게임 정의(features/games)가 생기기 전까지 이름, 안내, 색을 대신한다. 새 게임의 안내와 색은 임시 값이다.
+// 게임 정의(features/games)가 없는 게임의 이름, 안내, 색을 대신한다. 새 게임의 안내와 색은 임시 값이다.
 export const mockGameMeta: Record<string, MockGameMeta> = {
-  "reaction-time": {
-    name: "반응속도",
-    instruction: "색이 바뀌면 누르세요.",
-    color: { color: "#E4704F", soft: "#FBE6DD", mid: "#F3C3B1", ink: "#8A3A22" },
-  },
   "ten-seconds": {
     name: "10초 맞추기",
     instruction: "정확히 10초에 멈추세요.",
