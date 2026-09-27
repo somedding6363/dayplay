@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { GameBoard } from "@/entities/game";
 import { recordLocalPlay } from "@/entities/record";
@@ -28,6 +29,7 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
   const [resultText, setResultText] = useState("");
   // 로그인하지 않아 이 브라우저에 저장했으면 로그인 버튼을 보여준다.
   const [savedLocally, setSavedLocally] = useState(false);
+  const router = useRouter();
   const boardRef = useRef<HTMLButtonElement>(null);
   const started = useRef<Promise<StartedPlay | null>>(Promise.resolve(null));
   // play를 다시 시작하면 이전 play의 저장 응답은 버린다.
@@ -82,6 +84,10 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
       ? await finishPlay(game.gameId, play.playToken, result).catch(() => null)
       : null;
     if (saved?.status === "saved") {
+      // 순위와 분포는 서버가 그린다. 내 기록이 바뀌었을 때만 다시 읽는다.
+      if (saved.improved) {
+        router.refresh();
+      }
       return;
     }
     // 세션 만료, 토큰 발급 실패, 토큰 거부, 네트워크 오류로 저장하지 못하면 결과를 잃지 않도록 브라우저에 남긴다.

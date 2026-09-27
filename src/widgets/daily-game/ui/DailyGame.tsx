@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useSyncExternalStore, type ReactNode } from "react";
-import { GameBoard } from "@/entities/game";
 import { readLocalRecords, readServerLocalRecords, subscribeLocalRecords } from "@/entities/record";
 import { TabItem, Tabs } from "@/shared/ui/tabs";
 import { bestOfLocal, pickBest, type BestResult } from "../model/best";
@@ -25,8 +24,6 @@ interface DailyGameProps {
   asides: Record<string, ReactNode>;
 }
 
-const formatUnknown = () => "-";
-
 const serverBest = (bests: Record<string, number | null>, gameId: string) =>
   gameId in bests ? { value: bests[gameId] } : undefined;
 
@@ -34,6 +31,7 @@ const serverBest = (bests: Record<string, number | null>, gameId: string) =>
 // 게임 영역은 sticky라서 긴 옆 영역을 먼저 스크롤하고, grid 끝에 닿으면 함께 올라간다.
 export function DailyGame({ games, date, today, signedIn, bests, asides }: DailyGameProps) {
   const { selected, select } = useSelectedGame(games);
+  // 페이지는 구현한 게임만 넘긴다.
   const playable = selected && playableGames.get(selected.gameId);
   const localRecords = useSyncExternalStore(
     subscribeLocalRecords,
@@ -44,7 +42,7 @@ export function DailyGame({ games, date, today, signedIn, bests, asides }: Daily
   const [sessionBests, setSessionBests] = useState<Record<string, BestResult>>({});
   useLocalRecordSync(signedIn, today);
 
-  if (!selected) {
+  if (!selected || !playable) {
     return <p className="text-body text-muted">오늘 열린 게임이 없어요.</p>;
   }
 
@@ -75,44 +73,33 @@ export function DailyGame({ games, date, today, signedIn, bests, asides }: Daily
           ))}
         </Tabs>
 
-        {/* 게임을 바꾸면 흐름을 처음부터 시작한다. 아직 만들지 않은 게임은 시작 판만 보여준다. */}
-        {playable ? (
-          <GamePlay
-            key={playable.gameId}
-            game={playable}
-            signedIn={signedIn}
-            today={today}
-            onRecord={(record) =>
-              setSessionBests((current) => {
-                const best = pickBest(playable.better, current[playable.gameId], record);
-                return best ? { ...current, [playable.gameId]: best } : current;
-              })
-            }
-          />
-        ) : (
-          <GameBoard
-            label="시작"
-            description={selected.instruction}
-            inputs={["click", "touch", "space"]}
-            aria-label={`${selected.name} 시작. 판을 누르거나 스페이스바를 누르세요.`}
-          />
-        )}
+        {/* 게임을 바꾸면 흐름을 처음부터 시작한다. */}
+        <GamePlay
+          key={playable.gameId}
+          game={playable}
+          signedIn={signedIn}
+          today={today}
+          onRecord={(record) =>
+            setSessionBests((current) => {
+              const best = pickBest(playable.better, current[playable.gameId], record);
+              return best ? { ...current, [playable.gameId]: best } : current;
+            })
+          }
+        />
       </section>
 
       <aside className="flex flex-col gap-4 lg:border-l lg:border-hairline-soft lg:pl-8">
         <MyBestCard
           best={
-            playable
-              ? signedIn
-                ? pickBest(
-                    playable.better,
-                    serverBest(bests, selected.gameId),
-                    sessionBests[selected.gameId],
-                  )
-                : bestOfLocal(localRecords, selected.gameId, playable.better)
-              : undefined
+            signedIn
+              ? pickBest(
+                  playable.better,
+                  serverBest(bests, selected.gameId),
+                  sessionBests[selected.gameId],
+                )
+              : bestOfLocal(localRecords, selected.gameId, playable.better)
           }
-          formatValue={playable?.formatValue ?? formatUnknown}
+          formatValue={playable.formatValue}
           local={!signedIn}
         />
         {asides[selected.gameId]}
