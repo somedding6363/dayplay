@@ -42,10 +42,13 @@ export function GameBoard({
         <span className={cx("size-72 rounded-full", toneClass[tone].ring)} />
       </span>
 
-      {/* 화면 폭이 아니라 판 자체의 폭에 맞춰 크기를 바꾼다. */}
+      {/* 화면 폭이 아니라 판 자체의 폭에 맞춰 크기를 바꾼다.
+          가장 긴 라벨("기다리세요", "10000ms", "20.000초")과 입력 표시가 한 줄에 들어가는 폭에서만 글자를 키운다. */}
       <span className="relative flex size-full items-end justify-between gap-6 p-8 @md:p-12">
         <span className="relative flex flex-col gap-3">
-          <span className="text-hero-display break-keep @md:text-board-label">{label}</span>
+          <span className="text-display-lg break-keep @md:text-hero-display @xl:text-board-label">
+            {label}
+          </span>
           {description ? <span className="text-tagline break-keep">{description}</span> : null}
         </span>
 
@@ -53,7 +56,7 @@ export function GameBoard({
           <span
             aria-hidden="true"
             className={cx(
-              "relative flex flex-col gap-1 text-caption tracking-widest uppercase",
+              "relative hidden flex-col gap-1 text-caption tracking-widest uppercase @xs:flex",
               toneClass[tone].input,
             )}
           >
