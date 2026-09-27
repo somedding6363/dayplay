@@ -1,9 +1,9 @@
 import "server-only";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import type { GameRules } from "@/entities/game";
 import { db } from "@/shared/api";
 import { readPlayToken } from "../model/play-token";
-import { gameResults, resultRequests } from "../model/schema";
+import { gameResults, plays } from "../model/schema";
 import { playTokenSecret } from "./play-token-secret";
 
 export type SaveRejectReason = "invalid-token" | "game-mismatch" | "invalid-result" | "play-used";
@@ -11,11 +11,14 @@ export type SaveRejectReason = "invalid-token" | "game-mismatch" | "invalid-resu
 export type SaveGameResult<TResult> =
   | {
       status: "saved";
-      score: number;
+      // 무효 결과는 null이다.
+      score: number | null;
       // 예전 규칙 버전으로 저장된 기록을 지금 규칙으로 읽지 못하면 rawResult는 null이다.
-      best: { rawResult: TResult | null; score: number };
-      // 이번 판이 내 기록이 되었는지. 같은 판을 다시 보내도 같은 값이 나온다.
+      best: { rawResult: TResult | null; score: number | null };
+      // 이번 play가 내 기록이 되었는지. 같은 play를 다시 보내도 같은 값이 나온다.
       improved: boolean;
+      // 그날 이 게임을 끝낸 play 수.
+      attempts: number;
     }
   | { status: "rejected"; reason: SaveRejectReason };
 
@@ -26,6 +29,7 @@ interface SaveInput {
 }
 
 // 모든 게임이 같이 쓰는 저장 흐름. 게임마다 다른 검증과 점수 변환만 rules가 맡는다.
+// 무효도 점수가 null인 하나의 결과라 같은 흐름으로 저장한다.
 // neon-http는 대화형 트랜잭션이 없어서 각 단계를 한 문장으로 원자적으로 처리한다.
 export async function saveGameResult<TResult>(
   { userId, playToken, result }: SaveInput,
@@ -45,27 +49,25 @@ export async function saveGameResult<TResult>(
     return { status: "rejected", reason: "invalid-result" };
   }
   const score = rules.toScore(parsed);
-  if (!Number.isSafeInteger(score)) {
+  if (score !== null && !Number.isSafeInteger(score)) {
     return { status: "rejected", reason: "invalid-result" };
   }
 
-  // 판을 먼저 차지한다. 이미 저장된 판이면 같은 사용자의 같은 결과(재전송)만 이어서 처리한다.
+  // play를 먼저 차지한다. 이미 저장된 play면 같은 사용자의 같은 결과(재전송)만 이어서 처리한다.
   const [claimed] = await db
-    .insert(resultRequests)
-    .values({ playId: play.playId, userId, score })
+    .insert(plays)
+    .values({ playId: play.playId, userId, date: play.date, gameId: play.gameId, score })
     .onConflictDoNothing()
-    .returning({ playId: resultRequests.playId });
+    .returning({ playId: plays.playId });
   if (!claimed) {
-    const [existing] = await db
-      .select()
-      .from(resultRequests)
-      .where(eq(resultRequests.playId, play.playId));
+    const [existing] = await db.select().from(plays).where(eq(plays.playId, play.playId));
     if (!existing || existing.userId !== userId || existing.score !== score) {
       return { status: "rejected", reason: "play-used" };
     }
   }
 
-  // 더 높은 점수일 때만 덮어쓴다. 여러 탭이 동시에 저장해도 한 문장이라 높은 쪽이 남는다.
+  // 첫 play는 무효여도 내 기록이 된다. 이후에는 점수가 있는 결과가 무효(null)를, 높은 점수가 낮은 점수를 이긴다.
+  // 여러 탭이 동시에 저장해도 한 문장이라 좋은 쪽이 남는다.
   await db
     .insert(gameResults)
     .values({
@@ -87,7 +89,7 @@ export async function saveGameResult<TResult>(
         playId: sql`excluded.play_id`,
         achievedAt: sql`excluded.achieved_at`,
       },
-      setWhere: gt(sql`excluded.score`, gameResults.score),
+      setWhere: sql`excluded.score is not null and (${gameResults.score} is null or excluded.score > ${gameResults.score})`,
     });
 
   const [best] = await db
@@ -104,6 +106,10 @@ export async function saveGameResult<TResult>(
         eq(gameResults.gameId, play.gameId),
       ),
     );
+  const [{ attempts }] = await db
+    .select({ attempts: count() })
+    .from(plays)
+    .where(and(eq(plays.userId, userId), eq(plays.date, play.date), eq(plays.gameId, play.gameId)));
   if (!best) {
     throw new Error("저장한 내 기록을 읽지 못했어요.");
   }
@@ -114,5 +120,6 @@ export async function saveGameResult<TResult>(
     score,
     best: { rawResult: improved ? parsed : rules.parseResult(best.rawResult), score: best.score },
     improved,
+    attempts,
   };
 }

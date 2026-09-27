@@ -1,1 +1,1 @@
-export { gameResults, resultRequests } from "./model/schema";
+export { gameResults, plays } from "./model/schema";

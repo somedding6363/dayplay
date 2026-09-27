@@ -12,7 +12,7 @@ describe("play token", () => {
     expect(await readPlayToken(token, secret, issuedAt + 1000)).toEqual(claims);
   });
 
-  it("KST 자정을 넘겨도 판의 날짜는 발급한 날짜다", async () => {
+  it("KST 자정을 넘겨도 play의 날짜는 발급한 날짜다", async () => {
     const token = await createPlayToken(claims, secret);
     const afterMidnight = issuedAt + 2 * 60 * 1000;
     expect((await readPlayToken(token, secret, afterMidnight))?.date).toBe("2026-09-28");
