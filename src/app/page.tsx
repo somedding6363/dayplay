@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { dailySchedule, getDailyGames } from "@/entities/daily-game";
-import { distributionBucket } from "@/entities/game";
+import { distributionBucket, distributionBucketRange } from "@/entities/game";
 import { getBestValues, getGameStats } from "@/entities/record/server";
 import { auth } from "@/features/auth/server";
 import { dateKeyToKstDate, formatKstDate, formatKstTime, todayKey } from "@/shared/lib";
@@ -60,9 +60,17 @@ export default async function Home() {
                     me={me}
                   />
                   <ParticipantDistribution
-                    buckets={buckets}
+                    bars={buckets.map((count, bucket) => {
+                      const { from, to } = distributionBucketRange(bucket, game.distribution);
+                      const label =
+                        from === undefined
+                          ? `${game.formatValue(to ?? null)} 미만`
+                          : to === undefined
+                            ? `${game.formatValue(from)} 이상`
+                            : `${game.formatValue(from)} ~ ${game.formatValue(to)}`;
+                      return { count, label };
+                    })}
                     myBucket={me ? distributionBucket(me.value, game.distribution) : undefined}
-                    rangeLabels={game.distribution.labels}
                   />
                   <TodayParticipants
                     count={todayCount}

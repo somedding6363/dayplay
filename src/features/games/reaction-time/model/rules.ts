@@ -61,7 +61,7 @@ export const reactionTimeRules: GameRules<ReactionTimeResult> = {
   better: "lower",
   isValidValue: (ms) => isInteger(ms, REACTION_MIN_MS, REACTION_TIMEOUT_MS),
   durationMs: ({ elapsedMs }) => elapsedMs,
-  distribution: { min: 100, max: 600, bins: 10, labels: ["빠름", "느림"] },
+  distribution: { min: 100, max: 600, bins: 10 },
   formatResult: ({ ms }) => formatValue(ms),
   formatValue,
 };
