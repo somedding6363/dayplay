@@ -1,11 +1,16 @@
 import { Button } from "@/shared/ui/button";
 import { signInWithGoogle } from "../api/actions";
 
-export function SignInButton() {
+interface SignInButtonProps {
+  label?: string;
+  size?: "sm" | "md";
+}
+
+export function SignInButton({ label = "로그인", size = "md" }: SignInButtonProps) {
   return (
     <form action={signInWithGoogle}>
-      <Button type="submit" shape="rounded">
-        로그인
+      <Button type="submit" shape="rounded" size={size}>
+        {label}
       </Button>
     </form>
   );
