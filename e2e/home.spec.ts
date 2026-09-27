@@ -24,6 +24,21 @@ test("첫 화면에 날짜, 게임 탭, 게임 판을 보여준다", async ({ pa
   await expect(page.getByRole("contentinfo")).toContainText("duworks");
 });
 
+test("분포 막대에 올리거나 focus하면 구간 값과 인원을 겹쳐 보여준다", async ({ page }) => {
+  const bars = page.getByRole("list", { name: /참가자 기록 분포/ }).getByRole("listitem");
+  test.skip((await bars.count()) === 0, "E2E 서버의 DB에 이 게임 기록이 없다.");
+  const overlay = bars.first().locator("span").last();
+
+  await expect(overlay).toBeHidden();
+  await bars.first().hover();
+  await expect(overlay).toBeVisible();
+  await expect(overlay).toHaveText(/미만 · \d+명/);
+
+  await page.mouse.move(0, 0);
+  await bars.last().focus();
+  await expect(bars.last().locator("span").last()).toHaveText(/이상 · \d+명/);
+});
+
 test("오른쪽 영역에 내 최고 기록, 순위, 분포, 참가자를 보여준다", async ({ page }) => {
   const aside = page.getByRole("complementary");
   for (const name of ["내 최고 기록", "게임 순위", "참가자 분포", "오늘 참가자"]) {

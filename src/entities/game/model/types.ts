@@ -26,7 +26,8 @@ export interface GameRules<TResult> {
   // 서버는 이 값이 토큰 발급 후 실제로 지난 시간보다 길면 거부한다.
   durationMs: (result: TResult) => number;
   // value 기준 분포 구간. 무효(null)는 분포에 넣지 않는다.
-  distribution: { min: number; max: number; bins: number; labels: [start: string, end: string] };
+  // 분포 가로축. 왼쪽 끝(min)이 가장 좋은 쪽이다. 범위를 벗어난 값은 양 끝 칸에 넣는다.
+  distribution: { min: number; max: number; bins: number };
   // 방금 끝낸 play를 게임 판에 보여준다.
   formatResult: (result: TResult) => string;
   // 저장된 값만으로 보여준다. 내 최고 기록, 순위에 쓴다. 무효는 "-".

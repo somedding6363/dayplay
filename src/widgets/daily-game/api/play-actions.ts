@@ -9,6 +9,7 @@ import {
 } from "@/entities/record/server";
 import { auth } from "@/features/auth/server";
 import { reactionTime } from "@/features/games/reaction-time";
+import { tenSeconds } from "@/features/games/ten-seconds";
 import { todayKey } from "@/shared/lib";
 
 interface SaveInput {
@@ -36,6 +37,13 @@ const savers = new Map<string, GameSaver>([
     {
       save: (input) => saveGameResult(input, reactionTime),
       merge: (input) => mergeGameValue(input, reactionTime),
+    },
+  ],
+  [
+    tenSeconds.id,
+    {
+      save: (input) => saveGameResult(input, tenSeconds),
+      merge: (input) => mergeGameValue(input, tenSeconds),
     },
   ],
 ]);
