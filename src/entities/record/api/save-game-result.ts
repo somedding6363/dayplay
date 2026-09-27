@@ -29,15 +29,21 @@ interface SaveInput {
   result: unknown;
 }
 
+interface SaveOptions {
+  now?: Date;
+  // 기본값은 PLAY_TOKEN_MAX_AGE_MS. 로그인 직후 임시 기록 병합에서만 늘린다.
+  maxTokenAgeMs?: number;
+}
+
 // 모든 게임이 같이 쓰는 저장 흐름. 게임마다 다른 검증과 점수 변환만 rules가 맡는다.
 // 무효도 점수가 null인 하나의 결과라 같은 흐름으로 저장한다.
 // neon-http는 대화형 트랜잭션이 없어서 각 단계를 한 문장으로 원자적으로 처리한다.
 export async function saveGameResult<TResult>(
   { userId, playToken, result }: SaveInput,
   rules: Pick<GameRules<TResult>, "id" | "version" | "parseResult" | "toScore" | "durationMs">,
-  now = new Date(),
+  { now = new Date(), maxTokenAgeMs }: SaveOptions = {},
 ): Promise<SaveGameResult<TResult>> {
-  const play = await readPlayToken(playToken, playTokenSecret(), now.getTime());
+  const play = await readPlayToken(playToken, playTokenSecret(), now.getTime(), maxTokenAgeMs);
   if (!play) {
     return { status: "rejected", reason: "invalid-token" };
   }

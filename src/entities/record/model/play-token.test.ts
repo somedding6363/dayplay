@@ -24,6 +24,13 @@ describe("play token", () => {
     expect(await readPlayToken(token, secret, issuedAt + PLAY_TOKEN_MAX_AGE_MS + 1)).toBeNull();
   });
 
+  it("유효 기간을 늘리면 기본 기간이 지난 토큰도 받는다", async () => {
+    const token = await createPlayToken(claims, secret);
+    const later = issuedAt + 2 * PLAY_TOKEN_MAX_AGE_MS;
+    expect(await readPlayToken(token, secret, later)).toBeNull();
+    expect(await readPlayToken(token, secret, later, 3 * PLAY_TOKEN_MAX_AGE_MS)).toEqual(claims);
+  });
+
   it("발급 시각이 너무 미래인 토큰은 거부한다", async () => {
     const token = await createPlayToken(claims, secret);
     expect(await readPlayToken(token, secret, issuedAt - 60 * 1000)).toBeNull();

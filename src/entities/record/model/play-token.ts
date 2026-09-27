@@ -36,13 +36,19 @@ export function createPlayToken(claims: PlayClaims, secret: string) {
 }
 
 // 서명, 형식, 만료를 모두 통과하면 claims를, 아니면 null을 돌려준다.
-export async function readPlayToken(token: string, secret: string, now: number) {
+// maxAgeMs는 로그인 직후 병합처럼 끝낸 뒤 한참 지나 저장하는 경우에만 늘린다.
+export async function readPlayToken(
+  token: string,
+  secret: string,
+  now: number,
+  maxAgeMs = PLAY_TOKEN_MAX_AGE_MS,
+) {
   const payload = await verifyToken(token, secret);
   if (!isPlayClaims(payload)) {
     return null;
   }
   const age = now - payload.issuedAt;
-  if (age < -CLOCK_SKEW_MS || age > PLAY_TOKEN_MAX_AGE_MS) {
+  if (age < -CLOCK_SKEW_MS || age > maxAgeMs) {
     return null;
   }
   return payload;
