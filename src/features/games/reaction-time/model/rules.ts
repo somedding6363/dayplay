@@ -1,7 +1,7 @@
 import type { GameRules } from "@/entities/game";
 
 export interface ReactionTimeResult {
-  // 신호부터 입력까지. 무효(신호 전 입력, 너무 빠른 입력, 시간 초과, 탭 이탈)는 null.
+  // 신호부터 입력까지. 무효(신호 전 입력, 0ms, 시간 초과, 탭 이탈)는 null.
   ms: number | null;
   // play를 시작해서 끝낼 때까지. 서버가 토큰 발급 후 경과 시간과 대조한다.
   elapsedMs: number;
@@ -9,8 +9,8 @@ export interface ReactionTimeResult {
 
 export const WAIT_MIN_MS = 2000;
 export const WAIT_MAX_MS = 5000;
-// 사람이 신호를 보고 100ms 안에 누를 수 없다. 이보다 빠르면 신호를 예측하고 누른 것이다.
-export const REACTION_MIN_MS = 100;
+// 타이밍을 맞춰 누른 것도 기록으로 인정한다. 0ms만 신호와 동시에 누른 것으로 보고 무효로 한다.
+export const REACTION_MIN_MS = 1;
 export const REACTION_TIMEOUT_MS = 10_000;
 
 // 대기 중 입력으로 끝나면 elapsedMs가 WAIT_MIN_MS보다 짧을 수 있다.

@@ -16,10 +16,11 @@ describe("toReactionMs", () => {
     expect(toReactionMs(187.4)).toBe(187);
   });
 
-  it("최소 반응 시간보다 빠르면 무효다", () => {
+  it("0ms만 무효이고 1ms부터 기록한다", () => {
     expect(toReactionMs(0)).toBeNull();
-    expect(toReactionMs(REACTION_MIN_MS - 1)).toBeNull();
-    expect(toReactionMs(REACTION_MIN_MS)).toBe(REACTION_MIN_MS);
+    expect(toReactionMs(0.4)).toBeNull();
+    expect(toReactionMs(0.6)).toBe(1);
+    expect(toReactionMs(REACTION_MIN_MS)).toBe(1);
   });
 
   it("제한 시간을 넘기면 무효다", () => {
@@ -63,7 +64,6 @@ describe("reactionTimeRules", () => {
 
   it("불가능한 결과는 거부한다", () => {
     expect(parseResult({ ms: 0, elapsedMs: 3000 })).toBeNull();
-    expect(parseResult({ ms: 50, elapsedMs: 3000 })).toBeNull();
     expect(parseResult({ ms: 187.5, elapsedMs: 3000 })).toBeNull();
     expect(parseResult({ ms: REACTION_TIMEOUT_MS + 1, elapsedMs: 20_000 })).toBeNull();
     expect(parseResult({ ms: "187", elapsedMs: 3000 })).toBeNull();
