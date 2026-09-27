@@ -66,7 +66,7 @@ export async function finishPlay(
 
 export interface MergedRecord {
   id: string;
-  // 계정에 저장됐거나 이미 저장된 play면 true. 이 기록은 브라우저에서 지워도 된다.
+  // 계정에 저장됐으면 true. 이 기록은 브라우저에서 지워도 된다.
   stored: boolean;
 }
 
@@ -104,10 +104,7 @@ export async function mergeLocalRecords(records: unknown): Promise<MergedRecord[
       { userId, playToken: record.playToken, result: record.rawResult },
       { maxTokenAgeMs: MERGE_TOKEN_MAX_AGE_MS },
     );
-    merged.push({
-      id: record.id,
-      stored: saved.status === "saved" || saved.reason === "play-used",
-    });
+    merged.push({ id: record.id, stored: saved.status === "saved" });
   }
   return merged;
 }

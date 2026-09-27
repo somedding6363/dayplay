@@ -7,4 +7,4 @@ export {
   subscribeLocalRecords,
 } from "./model/local-records";
 export type { LocalRecord } from "./model/local-records";
-export { gameResults, plays } from "./model/schema";
+export { gameResults } from "./model/schema";
