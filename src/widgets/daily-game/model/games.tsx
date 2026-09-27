@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import type { Better, GameDefinition } from "@/entities/game";
+import type { Better, GameDefinition, GameRules } from "@/entities/game";
 import { reactionTime } from "@/features/games/reaction-time";
 import type { TodayGame } from "./types";
 
@@ -13,6 +13,7 @@ export interface PlayableGame extends TodayGame {
   // 결과를 내 기록 비교에 쓰는 값으로 바꾼다. 읽지 못하거나 무효면 null.
   value: (result: unknown) => number | null;
   better: Better;
+  distribution: GameRules<unknown>["distribution"];
 }
 
 function toPlayable<TResult>(game: GameDefinition<TResult>): PlayableGame {
@@ -35,6 +36,7 @@ function toPlayable<TResult>(game: GameDefinition<TResult>): PlayableGame {
     },
     better: game.better,
     formatValue: game.formatValue,
+    distribution: game.distribution,
   };
 }
 
