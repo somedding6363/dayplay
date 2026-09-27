@@ -1,5 +1,5 @@
 import { cx } from "@/shared/lib";
-import { StatCard } from "./StatCard";
+import { StatCard } from "@/shared/ui/stat-card";
 
 interface ParticipantDistributionProps {
   buckets: number[];
