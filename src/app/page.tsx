@@ -9,8 +9,6 @@ import {
   ParticipantDistribution,
   TodayParticipants,
 } from "@/widgets/game-stats";
-import { SiteFooter } from "@/widgets/site-footer";
-import { SiteHeader } from "@/widgets/site-header";
 import { mockGameMeta } from "./mock-game-meta";
 import { emptyGameStats, mockGameStats } from "./mock-game-stats";
 
@@ -30,35 +28,31 @@ export default async function Home() {
   });
 
   return (
-    <>
-      <SiteHeader />
-      <PageContainer className="flex-1 pt-6 pb-16">
-        <main>
-          <DailyGame
-            games={games}
-            date={formatKstDate(dateKeyToKstDate(today))}
-            asides={Object.fromEntries(
-              games.map(({ gameId }) => {
-                const stats = mockGameStats[gameId] ?? emptyGameStats;
-                return [
-                  gameId,
-                  <>
-                    <MyBest best={stats.myBest} />
-                    <GameRanking entries={stats.ranking} myRank={stats.myRank} />
-                    <ParticipantDistribution
-                      buckets={stats.buckets}
-                      myBucket={stats.myBucket}
-                      rangeLabels={stats.rangeLabels}
-                    />
-                    <TodayParticipants {...stats.participants} />
-                  </>,
-                ];
-              }),
-            )}
-          />
-        </main>
-      </PageContainer>
-      <SiteFooter />
-    </>
+    <PageContainer className="flex-1 pt-6 pb-16">
+      <main>
+        <DailyGame
+          games={games}
+          date={formatKstDate(dateKeyToKstDate(today))}
+          asides={Object.fromEntries(
+            games.map(({ gameId }) => {
+              const stats = mockGameStats[gameId] ?? emptyGameStats;
+              return [
+                gameId,
+                <>
+                  <MyBest best={stats.myBest} />
+                  <GameRanking entries={stats.ranking} myRank={stats.myRank} />
+                  <ParticipantDistribution
+                    buckets={stats.buckets}
+                    myBucket={stats.myBucket}
+                    rangeLabels={stats.rangeLabels}
+                  />
+                  <TodayParticipants {...stats.participants} />
+                </>,
+              ];
+            }),
+          )}
+        />
+      </main>
+    </PageContainer>
   );
 }
