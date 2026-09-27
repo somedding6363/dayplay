@@ -36,6 +36,13 @@
       "when": 1790493297807,
       "tag": "0004_game_results_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790499535885,
+      "tag": "0005_game_results_value",
+      "breakpoints": true
     }
   ]
 }

@@ -9,7 +9,7 @@ import {
   toReactionMs,
 } from "./rules";
 
-const { parseResult, toScore, formatResult, measure } = reactionTimeRules;
+const { parseResult, toValue, formatResult, measure } = reactionTimeRules;
 
 describe("toReactionMs", () => {
   it("신호부터 입력까지의 시간을 정수 ms로 바꾼다", () => {
@@ -40,26 +40,24 @@ describe("randomWaitMs", () => {
 });
 
 describe("reactionTimeRules", () => {
-  it("정상 결과는 점수가 -ms이고 ms로 표시한다", () => {
+  it("정상 결과는 값이 ms이고 ms로 표시한다", () => {
     const result = parseResult({ ms: 187, elapsedMs: 3187 });
     expect(result).toEqual({ ms: 187, elapsedMs: 3187 });
-    expect(result && toScore(result)).toBe(-187);
+    expect(result && toValue(result)).toBe(187);
     expect(result && formatResult(result)).toBe("187ms");
     expect(result && measure(result)).toBe(187);
   });
 
-  it("무효 결과는 점수와 분포 값이 null이고 -로 표시한다", () => {
+  it("무효 결과는 값과 분포 값이 null이고 -로 표시한다", () => {
     const result = parseResult({ ms: null, elapsedMs: 800 });
     expect(result).toEqual({ ms: null, elapsedMs: 800 });
-    expect(result && toScore(result)).toBeNull();
+    expect(result && toValue(result)).toBeNull();
     expect(result && measure(result)).toBeNull();
     expect(result && formatResult(result)).toBe("-");
   });
 
-  it("빠를수록 점수가 높다", () => {
-    const fast = parseResult({ ms: 150, elapsedMs: 3000 });
-    const slow = parseResult({ ms: 300, elapsedMs: 3000 });
-    expect(fast && slow && (toScore(fast) ?? 0) > (toScore(slow) ?? 0)).toBe(true);
+  it("작을수록 좋은 기록이다", () => {
+    expect(reactionTimeRules.better).toBe("lower");
   });
 
   it("불가능한 결과는 거부한다", () => {

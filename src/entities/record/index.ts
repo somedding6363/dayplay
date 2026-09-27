@@ -1,4 +1,4 @@
-export { isBetterScore } from "./model/best";
+export { isBetterValue } from "./model/best";
 export {
   readLocalRecords,
   readServerLocalRecords,

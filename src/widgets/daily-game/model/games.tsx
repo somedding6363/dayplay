@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import type { GameDefinition } from "@/entities/game";
+import type { Better, GameDefinition } from "@/entities/game";
 import { reactionTime } from "@/features/games/reaction-time";
 import type { TodayGame } from "./types";
 
@@ -8,8 +8,9 @@ export interface PlayableGame extends TodayGame {
   Component: ComponentType<{ onFinish: (result: unknown) => void }>;
   // 저장된 원본 결과를 표시용 문자열로 바꾼다. 읽지 못하면 "-".
   format: (result: unknown) => string;
-  // 결과를 내 기록 비교에 쓰는 점수로 바꾼다. 읽지 못하거나 무효면 null.
-  score: (result: unknown) => number | null;
+  // 결과를 내 기록 비교에 쓰는 값으로 바꾼다. 읽지 못하거나 무효면 null.
+  value: (result: unknown) => number | null;
+  better: Better;
 }
 
 function toPlayable<TResult>(game: GameDefinition<TResult>): PlayableGame {
@@ -26,10 +27,11 @@ function toPlayable<TResult>(game: GameDefinition<TResult>): PlayableGame {
       const parsed = game.parseResult(result);
       return parsed === null ? "-" : game.formatResult(parsed);
     },
-    score: (result) => {
+    value: (result) => {
       const parsed = game.parseResult(result);
-      return parsed === null ? null : game.toScore(parsed);
+      return parsed === null ? null : game.toValue(parsed);
     },
+    better: game.better,
   };
 }
 

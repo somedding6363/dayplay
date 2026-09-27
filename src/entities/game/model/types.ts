@@ -1,3 +1,6 @@
+// 결과 값이 작을수록 좋은지 클수록 좋은지. 순위와 내 기록 비교가 이 방향을 따른다.
+export type Better = "lower" | "higher";
+
 export interface GameColor {
   color: string;
   soft: string;
@@ -16,8 +19,9 @@ export interface GameRules<TResult> {
   color: GameColor;
   // 형식과 값 범위를 검증한다. 불가능한 값이면 null.
   parseResult: (input: unknown) => TResult | null;
-  // 높을수록 좋은 정수. 낮을수록 좋은 값은 부호를 뒤집는다. 무효 결과는 null이다.
-  toScore: (result: TResult) => number | null;
+  // 비교·정렬에 쓰는 정수. 결과 그대로의 값(ms 등)이다. 무효 결과는 null이다.
+  toValue: (result: TResult) => number | null;
+  better: Better;
   // play에 걸린 시간(ms). 게임마다 재는 구간이 달라 게임이 결과에서 계산한다.
   // 서버는 이 값이 토큰 발급 후 실제로 지난 시간보다 길면 거부한다.
   durationMs: (result: TResult) => number;

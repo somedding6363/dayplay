@@ -13,7 +13,10 @@ export default async function Home() {
   await connection();
   const today = todayKey();
   const session = await auth();
-  const bests = session ? await getBestResults(session.user.id) : {};
+  const directions = Object.fromEntries(
+    [...playableGames.values()].map((game) => [game.gameId, game.better]),
+  );
+  const bests = session ? await getBestResults(session.user.id, directions) : {};
 
   const games: TodayGame[] = getDailyGames(dailySchedule, today).flatMap(({ gameId }) => {
     const meta = playableGames.get(gameId) ?? mockGameMeta[gameId];

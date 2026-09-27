@@ -52,21 +52,24 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
 
   const finish = async (result: unknown) => {
     const current = playNumber.current;
-    const score = game.score(result);
+    const value = game.value(result);
     setResultText(game.format(result));
     setPhase("finished");
-    onRecord({ rawResult: result, score });
+    onRecord({ rawResult: result, value });
 
     const play = await started.current;
     const saveLocal = () =>
-      recordLocalPlay({
-        date: play?.date ?? today,
-        gameId: game.gameId,
-        rawResult: result,
-        score,
-        playToken: play?.playToken ?? null,
-        playedAt: new Date().toISOString(),
-      });
+      recordLocalPlay(
+        {
+          date: play?.date ?? today,
+          gameId: game.gameId,
+          rawResult: result,
+          value,
+          playToken: play?.playToken ?? null,
+          playedAt: new Date().toISOString(),
+        },
+        game.better,
+      );
 
     if (!signedIn) {
       saveLocal();

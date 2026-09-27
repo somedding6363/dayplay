@@ -13,9 +13,9 @@ export type SaveGameResult<TResult> =
   | {
       status: "saved";
       // 무효 결과는 null이다.
-      score: number | null;
+      value: number | null;
       // 예전 규칙 버전으로 저장된 기록을 지금 규칙으로 읽지 못하면 rawResult는 null이다.
-      best: { rawResult: TResult | null; score: number | null };
+      best: { rawResult: TResult | null; value: number | null };
       // 이번 play가 내 기록이 되었는지.
       improved: boolean;
       // 그날 이 게임을 끝낸 play 수.
@@ -42,7 +42,10 @@ interface SaveOptions {
 // neon-http는 대화형 트랜잭션이 없어서 내 기록 갱신과 시도 횟수를 한 문장으로 처리한다.
 export async function saveGameResult<TResult>(
   { userId, playToken, result }: SaveInput,
-  rules: Pick<GameRules<TResult>, "id" | "version" | "parseResult" | "toScore" | "durationMs">,
+  rules: Pick<
+    GameRules<TResult>,
+    "id" | "version" | "parseResult" | "toValue" | "better" | "durationMs"
+  >,
   { now = new Date(), maxTokenAgeMs, attempts = 1 }: SaveOptions = {},
 ): Promise<SaveGameResult<TResult>> {
   const play = await readPlayToken(playToken, playTokenSecret(), now.getTime(), maxTokenAgeMs);
@@ -60,14 +63,15 @@ export async function saveGameResult<TResult>(
   if (!fitsElapsed(play, rules.durationMs(parsed), now.getTime())) {
     return { status: "rejected", reason: "invalid-duration" };
   }
-  const score = rules.toScore(parsed);
-  if (score !== null && !Number.isSafeInteger(score)) {
+  const value = rules.toValue(parsed);
+  if (value !== null && !Number.isSafeInteger(value)) {
     return { status: "rejected", reason: "invalid-result" };
   }
 
-  // 첫 play는 무효여도 내 기록이 된다. 이후에는 점수가 있는 결과가 무효(null)를, 높은 점수가 낮은 점수를 이긴다.
+  // 첫 play는 무효여도 내 기록이 된다. 이후에는 값이 있는 결과가 무효(null)를, 게임 방향(better)으로 더 좋은 값이 이긴다.
   // 시도 횟수는 결과와 상관없이 더한다. 한 문장이라 여러 탭이 동시에 저장해도 좋은 쪽이 남고 횟수도 빠지지 않는다.
-  const better = sql`excluded.score is not null and (${gameResults.score} is null or excluded.score > ${gameResults.score})`;
+  const compare = sql.raw(rules.better === "lower" ? "<" : ">");
+  const better = sql`excluded.value is not null and (${gameResults.value} is null or excluded.value ${compare} ${gameResults.value})`;
   const keepBetter = (column: AnyColumn, excluded: string) =>
     sql`case when ${better} then ${sql.raw(`excluded.${excluded}`)} else ${column} end`;
   const [best] = await db
@@ -78,7 +82,7 @@ export async function saveGameResult<TResult>(
       gameId: play.gameId,
       gameVersion: rules.version,
       rawResult: parsed,
-      score,
+      value,
       playId: play.playId,
       achievedAt: now,
       attempts,
@@ -88,7 +92,7 @@ export async function saveGameResult<TResult>(
       set: {
         gameVersion: keepBetter(gameResults.gameVersion, "game_version"),
         rawResult: keepBetter(gameResults.rawResult, "raw_result"),
-        score: keepBetter(gameResults.score, "score"),
+        value: keepBetter(gameResults.value, "value"),
         playId: keepBetter(gameResults.playId, "play_id"),
         achievedAt: keepBetter(gameResults.achievedAt, "achieved_at"),
         attempts: sql`${gameResults.attempts} + excluded.attempts`,
@@ -96,7 +100,7 @@ export async function saveGameResult<TResult>(
     })
     .returning({
       rawResult: gameResults.rawResult,
-      score: gameResults.score,
+      value: gameResults.value,
       playId: gameResults.playId,
       attempts: gameResults.attempts,
     });
@@ -107,8 +111,8 @@ export async function saveGameResult<TResult>(
 
   return {
     status: "saved",
-    score,
-    best: { rawResult: improved ? parsed : rules.parseResult(best.rawResult), score: best.score },
+    value,
+    best: { rawResult: improved ? parsed : rules.parseResult(best.rawResult), value: best.value },
     improved,
     attempts: best.attempts,
   };

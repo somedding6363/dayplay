@@ -16,8 +16,8 @@ export const gameResults = pgTable(
     gameId: text("game_id").notNull(),
     gameVersion: integer("game_version").notNull(),
     rawResult: jsonb("raw_result").notNull(),
-    // 무효 결과는 null이다. 순위에서는 가장 뒤에 둔다.
-    score: integer("score"),
+    // 비교·정렬에 쓰는 결과 값(ms 등). 좋은 방향은 게임 규칙의 better다. 무효 결과는 null이고 순위에서 가장 뒤다.
+    value: integer("value"),
     playId: text("play_id").notNull(),
     achievedAt: timestamp("achieved_at", { withTimezone: true, mode: "date" }).notNull(),
     // 그날 이 게임을 끝낸 play 수. 무효도 센다. 더 낮은 play는 남기지 않고 횟수만 늘린다.

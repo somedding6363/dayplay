@@ -81,7 +81,7 @@ export function DailyGame({ games, date, today, signedIn, bests, asides }: Daily
             today={today}
             onRecord={(record) =>
               setSessionBests((current) => {
-                const best = pickBest(current[playable.gameId], record);
+                const best = pickBest(playable.better, current[playable.gameId], record);
                 return best ? { ...current, [playable.gameId]: best } : current;
               })
             }
@@ -99,9 +99,11 @@ export function DailyGame({ games, date, today, signedIn, bests, asides }: Daily
       <aside className="flex flex-col gap-4 lg:border-l lg:border-hairline-soft lg:pl-8">
         <MyBestCard
           best={
-            signedIn
-              ? pickBest(bests[selected.gameId], sessionBests[selected.gameId])
-              : bestOfLocal(localRecords, selected.gameId)
+            playable
+              ? signedIn
+                ? pickBest(playable.better, bests[selected.gameId], sessionBests[selected.gameId])
+                : bestOfLocal(localRecords, selected.gameId, playable.better)
+              : undefined
           }
           format={playable?.format ?? formatUnknown}
           local={!signedIn}
