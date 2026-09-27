@@ -1,0 +1,78 @@
+import { describe, expect, it } from "vitest";
+import {
+  REACTION_MIN_MS,
+  REACTION_TIMEOUT_MS,
+  WAIT_MAX_MS,
+  WAIT_MIN_MS,
+  randomWaitMs,
+  reactionTimeRules,
+  toReactionMs,
+} from "./rules";
+
+const { parseResult, toScore, formatResult, measure } = reactionTimeRules;
+
+describe("toReactionMs", () => {
+  it("신호부터 입력까지의 시간을 정수 ms로 바꾼다", () => {
+    expect(toReactionMs(187.4)).toBe(187);
+  });
+
+  it("최소 반응 시간보다 빠르면 무효다", () => {
+    expect(toReactionMs(0)).toBeNull();
+    expect(toReactionMs(REACTION_MIN_MS - 1)).toBeNull();
+    expect(toReactionMs(REACTION_MIN_MS)).toBe(REACTION_MIN_MS);
+  });
+
+  it("제한 시간을 넘기면 무효다", () => {
+    expect(toReactionMs(REACTION_TIMEOUT_MS)).toBe(REACTION_TIMEOUT_MS);
+    expect(toReactionMs(REACTION_TIMEOUT_MS + 1)).toBeNull();
+  });
+});
+
+describe("randomWaitMs", () => {
+  it("대기 시간은 정해진 범위 안이다", () => {
+    for (let i = 0; i < 1000; i += 1) {
+      const wait = randomWaitMs();
+      expect(wait).toBeGreaterThanOrEqual(WAIT_MIN_MS);
+      expect(wait).toBeLessThan(WAIT_MAX_MS);
+    }
+  });
+});
+
+describe("reactionTimeRules", () => {
+  it("정상 결과는 점수가 -ms이고 ms로 표시한다", () => {
+    const result = parseResult({ ms: 187, elapsedMs: 3187 });
+    expect(result).toEqual({ ms: 187, elapsedMs: 3187 });
+    expect(result && toScore(result)).toBe(-187);
+    expect(result && formatResult(result)).toBe("187ms");
+    expect(result && measure(result)).toBe(187);
+  });
+
+  it("무효 결과는 점수와 분포 값이 null이고 -로 표시한다", () => {
+    const result = parseResult({ ms: null, elapsedMs: 800 });
+    expect(result).toEqual({ ms: null, elapsedMs: 800 });
+    expect(result && toScore(result)).toBeNull();
+    expect(result && measure(result)).toBeNull();
+    expect(result && formatResult(result)).toBe("-");
+  });
+
+  it("빠를수록 점수가 높다", () => {
+    const fast = parseResult({ ms: 150, elapsedMs: 3000 });
+    const slow = parseResult({ ms: 300, elapsedMs: 3000 });
+    expect(fast && slow && (toScore(fast) ?? 0) > (toScore(slow) ?? 0)).toBe(true);
+  });
+
+  it("불가능한 결과는 거부한다", () => {
+    expect(parseResult({ ms: 0, elapsedMs: 3000 })).toBeNull();
+    expect(parseResult({ ms: 50, elapsedMs: 3000 })).toBeNull();
+    expect(parseResult({ ms: 187.5, elapsedMs: 3000 })).toBeNull();
+    expect(parseResult({ ms: REACTION_TIMEOUT_MS + 1, elapsedMs: 20_000 })).toBeNull();
+    expect(parseResult({ ms: "187", elapsedMs: 3000 })).toBeNull();
+    expect(parseResult({ ms: 187 })).toBeNull();
+    expect(parseResult({ ms: 187, elapsedMs: -1 })).toBeNull();
+    expect(parseResult(null)).toBeNull();
+  });
+
+  it("최소 대기 시간을 기다리지 않은 정상 결과는 거부한다", () => {
+    expect(parseResult({ ms: 187, elapsedMs: 1000 })).toBeNull();
+  });
+});
