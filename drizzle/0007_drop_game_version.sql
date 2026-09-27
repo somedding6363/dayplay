@@ -1,0 +1,1 @@
+ALTER TABLE "game_results" DROP COLUMN "game_version";

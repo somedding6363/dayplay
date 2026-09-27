@@ -4,7 +4,7 @@ import { createPlayToken, fitsElapsed, PLAY_TOKEN_MAX_AGE_MS, readPlayToken } fr
 
 const secret = "test-secret";
 const issuedAt = Date.UTC(2026, 8, 28, 14, 59, 0);
-const claims = { playId: "p1", gameId: "reaction-time", date: "2026-09-28", issuedAt };
+const claims = { gameId: "reaction-time", date: "2026-09-28", issuedAt };
 
 describe("play token", () => {
   it("발급한 토큰을 읽으면 같은 claims가 나온다", async () => {
@@ -24,6 +24,13 @@ describe("play token", () => {
     expect(await readPlayToken(token, secret, issuedAt + PLAY_TOKEN_MAX_AGE_MS + 1)).toBeNull();
   });
 
+  it("유효 기간을 늘리면 기본 기간이 지난 토큰도 받는다", async () => {
+    const token = await createPlayToken(claims, secret);
+    const later = issuedAt + 2 * PLAY_TOKEN_MAX_AGE_MS;
+    expect(await readPlayToken(token, secret, later)).toBeNull();
+    expect(await readPlayToken(token, secret, later, 3 * PLAY_TOKEN_MAX_AGE_MS)).toEqual(claims);
+  });
+
   it("발급 시각이 너무 미래인 토큰은 거부한다", async () => {
     const token = await createPlayToken(claims, secret);
     expect(await readPlayToken(token, secret, issuedAt - 60 * 1000)).toBeNull();
@@ -35,7 +42,7 @@ describe("play token", () => {
   });
 
   it("서명은 맞아도 claims 모양이 틀리면 거부한다", async () => {
-    const token = await signToken({ playId: "p1", gameId: "reaction-time", issuedAt }, secret);
+    const token = await signToken({ gameId: "reaction-time", issuedAt }, secret);
     expect(await readPlayToken(token, secret, issuedAt)).toBeNull();
   });
 });

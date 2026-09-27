@@ -47,21 +47,21 @@ function parseResult(input: unknown): ReactionTimeResult | null {
   return { ms, elapsedMs };
 }
 
-function format({ ms }: ReactionTimeResult) {
+function formatValue(ms: number | null) {
   return ms === null ? "-" : `${ms}ms`;
 }
 
 export const reactionTimeRules: GameRules<ReactionTimeResult> = {
   id: "reaction-time",
-  version: 1,
   name: "반응속도",
   instruction: "색이 바뀌면 누르세요.",
   color: { color: "#E4704F", soft: "#FBE6DD", mid: "#F3C3B1", ink: "#8A3A22" },
   parseResult,
-  toScore: ({ ms }) => (ms === null ? null : -ms),
+  toValue: ({ ms }) => ms,
+  better: "lower",
+  isValidValue: (ms) => isInteger(ms, REACTION_MIN_MS, REACTION_TIMEOUT_MS),
   durationMs: ({ elapsedMs }) => elapsedMs,
-  measure: ({ ms }) => ms,
   distribution: { min: 100, max: 600, bins: 10, labels: ["빠름", "느림"] },
-  formatResult: format,
-  formatSummary: format,
+  formatResult: ({ ms }) => formatValue(ms),
+  formatValue,
 };

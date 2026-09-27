@@ -2,7 +2,6 @@ import { signToken, verifyToken } from "@/shared/lib";
 
 // play를 시작할 때 서버가 발급하는 정보. 결과를 저장할 때 이 play가 서버가 발급한 play인지 확인한다(D-16).
 export interface PlayClaims {
-  playId: string;
   gameId: string;
   // play를 시작한 날의 KST date key. 자정을 넘겨 끝내도 이 날짜의 기록이다.
   date: string;
@@ -19,8 +18,6 @@ function isPlayClaims(value: unknown): value is PlayClaims {
   return (
     typeof value === "object" &&
     value !== null &&
-    "playId" in value &&
-    typeof value.playId === "string" &&
     "gameId" in value &&
     typeof value.gameId === "string" &&
     "date" in value &&
@@ -36,13 +33,19 @@ export function createPlayToken(claims: PlayClaims, secret: string) {
 }
 
 // 서명, 형식, 만료를 모두 통과하면 claims를, 아니면 null을 돌려준다.
-export async function readPlayToken(token: string, secret: string, now: number) {
+// maxAgeMs는 로그인 직후 병합처럼 끝낸 뒤 한참 지나 저장하는 경우에만 늘린다.
+export async function readPlayToken(
+  token: string,
+  secret: string,
+  now: number,
+  maxAgeMs = PLAY_TOKEN_MAX_AGE_MS,
+) {
   const payload = await verifyToken(token, secret);
   if (!isPlayClaims(payload)) {
     return null;
   }
   const age = now - payload.issuedAt;
-  if (age < -CLOCK_SKEW_MS || age > PLAY_TOKEN_MAX_AGE_MS) {
+  if (age < -CLOCK_SKEW_MS || age > maxAgeMs) {
     return null;
   }
   return payload;

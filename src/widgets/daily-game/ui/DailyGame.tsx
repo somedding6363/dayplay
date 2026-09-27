@@ -1,26 +1,48 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { GameBoard } from "@/entities/game";
+import { readLocalRecords, readServerLocalRecords, subscribeLocalRecords } from "@/entities/record";
 import { TabItem, Tabs } from "@/shared/ui/tabs";
+import { bestOfLocal, pickBest, type BestResult } from "../model/best";
 import { gameColorStyle } from "../model/game-color-style";
 import { playableGames } from "../model/games";
 import type { TodayGame } from "../model/types";
+import { useLocalRecordSync } from "../model/use-local-record-sync";
 import { useSelectedGame } from "../model/use-selected-game";
 import { GamePlay } from "./GamePlay";
+import { MyBestCard } from "./MyBestCard";
 
 interface DailyGameProps {
   games: TodayGame[];
   date: string;
+  // 판정 날짜(KST date key).
+  today: string;
+  signedIn: boolean;
+  // 로그인 사용자의 게임별 모든 날짜 최고 기록 값. 기록이 없는 게임은 키가 없다.
+  bests: Record<string, number | null>;
   // server에서 게임마다 미리 그린 옆 영역. 선택한 게임의 것만 보여준다.
   asides: Record<string, ReactNode>;
 }
 
+const formatUnknown = () => "-";
+
+const serverBest = (bests: Record<string, number | null>, gameId: string) =>
+  gameId in bests ? { value: bests[gameId] } : undefined;
+
 // 옆 영역의 순위·분포도 선택한 게임 색을 따라야 해서 두 column을 같은 색 scope에 둔다.
 // 게임 영역은 sticky라서 긴 옆 영역을 먼저 스크롤하고, grid 끝에 닿으면 함께 올라간다.
-export function DailyGame({ games, date, asides }: DailyGameProps) {
+export function DailyGame({ games, date, today, signedIn, bests, asides }: DailyGameProps) {
   const { selected, select } = useSelectedGame(games);
   const playable = selected && playableGames.get(selected.gameId);
+  const localRecords = useSyncExternalStore(
+    subscribeLocalRecords,
+    readLocalRecords,
+    readServerLocalRecords,
+  );
+  // 이번 방문에서 끝낸 play. 서버 기록을 다시 읽지 않고 내 최고 기록을 바로 갱신한다.
+  const [sessionBests, setSessionBests] = useState<Record<string, BestResult>>({});
+  useLocalRecordSync(signedIn, today);
 
   if (!selected) {
     return <p className="text-body text-muted">오늘 열린 게임이 없어요.</p>;
@@ -55,7 +77,18 @@ export function DailyGame({ games, date, asides }: DailyGameProps) {
 
         {/* 게임을 바꾸면 흐름을 처음부터 시작한다. 아직 만들지 않은 게임은 시작 판만 보여준다. */}
         {playable ? (
-          <GamePlay key={playable.gameId} game={playable} />
+          <GamePlay
+            key={playable.gameId}
+            game={playable}
+            signedIn={signedIn}
+            today={today}
+            onRecord={(record) =>
+              setSessionBests((current) => {
+                const best = pickBest(playable.better, current[playable.gameId], record);
+                return best ? { ...current, [playable.gameId]: best } : current;
+              })
+            }
+          />
         ) : (
           <GameBoard
             label="시작"
@@ -67,6 +100,21 @@ export function DailyGame({ games, date, asides }: DailyGameProps) {
       </section>
 
       <aside className="flex flex-col gap-4 lg:border-l lg:border-hairline-soft lg:pl-8">
+        <MyBestCard
+          best={
+            playable
+              ? signedIn
+                ? pickBest(
+                    playable.better,
+                    serverBest(bests, selected.gameId),
+                    sessionBests[selected.gameId],
+                  )
+                : bestOfLocal(localRecords, selected.gameId, playable.better)
+              : undefined
+          }
+          formatValue={playable?.formatValue ?? formatUnknown}
+          local={!signedIn}
+        />
         {asides[selected.gameId]}
       </aside>
     </div>

@@ -2,21 +2,34 @@
 
 import { useEffect, useRef, useState } from "react";
 import { GameBoard } from "@/entities/game";
-import { finishPlay, startPlay } from "../api/play-actions";
+import { recordLocalPlay } from "@/entities/record";
+import { SignInButton } from "@/features/auth";
+import { finishPlay, startPlay, type StartedPlay } from "../api/play-actions";
+import type { BestResult } from "../model/best";
 import type { PlayableGame } from "../model/games";
-import { saveMessage, type SaveState } from "../model/save-message";
 
 type Phase = "ready" | "playing" | "finished";
 
 const inputs = ["click", "touch", "space"];
 
+interface GamePlayProps {
+  game: PlayableGame;
+  signedIn: boolean;
+  // 토큰 발급에 실패해 날짜를 모를 때 비로그인 기록에 쓴다.
+  today: string;
+  // 끝낸 play마다 부른다. 옆 영역의 내 최고 기록을 바로 갱신한다.
+  onRecord: (record: BestResult) => void;
+}
+
 // 게임 흐름(ready → playing → finished)과 play 토큰 발급, 결과 저장을 맡는다.
-export function GamePlay({ game }: { game: PlayableGame }) {
+// 로그인했으면 계정에, 아니면 이 브라우저에 저장한다.
+export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
   const [phase, setPhase] = useState<Phase>("ready");
   const [resultText, setResultText] = useState("");
-  const [save, setSave] = useState<SaveState | null>(null);
+  // 로그인하지 않아 이 브라우저에 저장했으면 로그인 버튼을 보여준다.
+  const [savedLocally, setSavedLocally] = useState(false);
   const boardRef = useRef<HTMLButtonElement>(null);
-  const token = useRef<Promise<string | null>>(Promise.resolve(null));
+  const started = useRef<Promise<StartedPlay | null>>(Promise.resolve(null));
   // play를 다시 시작하면 이전 play의 저장 응답은 버린다.
   const playNumber = useRef(0);
   // play를 끝낸 입력의 click이 새로 그려진 결과 판에 떨어져 바로 다시 시작하지 않도록,
@@ -32,25 +45,50 @@ export function GamePlay({ game }: { game: PlayableGame }) {
   const start = () => {
     pressedHere.current = false;
     playNumber.current += 1;
-    token.current = startPlay(game.gameId).catch(() => null);
-    setSave(null);
+    started.current = startPlay(game.gameId).catch(() => null);
+    setSavedLocally(false);
     setPhase("playing");
   };
 
   const finish = async (result: unknown) => {
     const current = playNumber.current;
+    const value = game.value(result);
     setResultText(game.format(result));
     setPhase("finished");
-    setSave({ status: "saving" });
+    onRecord({ value });
 
-    const playToken = await token.current;
-    const next: SaveState = playToken
-      ? await finishPlay(game.gameId, playToken, result).catch(() => ({
-          status: "failed" as const,
-        }))
-      : { status: "failed" };
-    if (current === playNumber.current) {
-      setSave(next);
+    const play = await started.current;
+    const saveLocal = () =>
+      recordLocalPlay(
+        {
+          date: play?.date ?? today,
+          gameId: game.gameId,
+          value,
+          playToken: play?.playToken ?? null,
+          playedAt: new Date().toISOString(),
+        },
+        game.better,
+      );
+
+    if (!signedIn) {
+      saveLocal();
+      if (current === playNumber.current) {
+        setSavedLocally(true);
+      }
+      return;
+    }
+
+    const saved = play
+      ? await finishPlay(game.gameId, play.playToken, result).catch(() => null)
+      : null;
+    if (saved?.status === "saved") {
+      return;
+    }
+    // 세션 만료, 토큰 발급 실패, 토큰 거부, 네트워크 오류로 저장하지 못하면 결과를 잃지 않도록 브라우저에 남긴다.
+    // 오늘 다시 들어오면 로그인 직후 병합으로 다시 저장한다. 토큰이 없거나 날짜가 지나면 이 기기에만 남는다.
+    saveLocal();
+    if (saved?.status === "signed-out" && current === playNumber.current) {
+      setSavedLocally(true);
     }
   };
 
@@ -81,9 +119,11 @@ export function GamePlay({ game }: { game: PlayableGame }) {
           }
         }}
       />
-      <p role="status" className="min-h-5 text-caption text-muted">
-        {save ? saveMessage(save, game.format) : null}
-      </p>
+      {savedLocally ? (
+        <div className="flex justify-end">
+          <SignInButton label="로그인하고 기록 저장" size="sm" />
+        </div>
+      ) : null}
     </div>
   );
 }

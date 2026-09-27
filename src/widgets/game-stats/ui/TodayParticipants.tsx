@@ -1,4 +1,4 @@
-import { StatCard } from "./StatCard";
+import { StatCard } from "@/shared/ui/stat-card";
 
 interface TodayParticipantsProps {
   count: number;
