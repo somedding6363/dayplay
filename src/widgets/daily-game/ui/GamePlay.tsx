@@ -58,7 +58,7 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
     onRecord({ rawResult: result, score });
 
     const play = await started.current;
-    const saveLocal = (): SaveState => {
+    const saveLocal = () =>
       saveLocalRecord({
         id: crypto.randomUUID(),
         date: play?.date ?? today,
@@ -68,12 +68,11 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
         playToken: play?.playToken ?? null,
         finishedAt: new Date().toISOString(),
       });
-      return { status: "local" };
-    };
 
     if (!signedIn) {
+      saveLocal();
       if (current === playNumber.current) {
-        setSave(saveLocal());
+        setSave({ status: "local" });
       }
       return;
     }
@@ -85,9 +84,14 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
         status: "failed" as const,
       }));
     }
-    // 세션이 만료됐으면 결과를 잃지 않도록 브라우저에 남긴다.
+    // 세션 만료, 토큰 거부, 네트워크 오류로 저장하지 못하면 결과를 잃지 않도록 브라우저에 남긴다.
+    // 오늘 다시 들어오면 로그인 직후 병합과 같은 흐름으로 다시 저장한다. 토큰이 없거나 날짜가 지나면 이 기기에만 남는다.
     if (next.status === "signed-out") {
-      next = saveLocal();
+      saveLocal();
+      next = { status: "local" };
+    } else if (next.status === "rejected" || next.status === "failed") {
+      saveLocal();
+      next = { status: "retry-later" };
     }
     if (current === playNumber.current) {
       setSave(next);
