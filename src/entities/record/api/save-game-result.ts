@@ -2,11 +2,12 @@ import "server-only";
 import { and, count, eq, sql } from "drizzle-orm";
 import type { GameRules } from "@/entities/game";
 import { db } from "@/shared/api";
-import { readPlayToken } from "../model/play-token";
+import { fitsElapsed, readPlayToken } from "../model/play-token";
 import { gameResults, plays } from "../model/schema";
 import { playTokenSecret } from "./play-token-secret";
 
-export type SaveRejectReason = "invalid-token" | "game-mismatch" | "invalid-result" | "play-used";
+export type SaveRejectReason =
+  "invalid-token" | "game-mismatch" | "invalid-result" | "invalid-duration" | "play-used";
 
 export type SaveGameResult<TResult> =
   | {
@@ -33,7 +34,7 @@ interface SaveInput {
 // neon-http는 대화형 트랜잭션이 없어서 각 단계를 한 문장으로 원자적으로 처리한다.
 export async function saveGameResult<TResult>(
   { userId, playToken, result }: SaveInput,
-  rules: Pick<GameRules<TResult>, "id" | "version" | "parseResult" | "toScore">,
+  rules: Pick<GameRules<TResult>, "id" | "version" | "parseResult" | "toScore" | "durationMs">,
   now = new Date(),
 ): Promise<SaveGameResult<TResult>> {
   const play = await readPlayToken(playToken, playTokenSecret(), now.getTime());
@@ -47,6 +48,9 @@ export async function saveGameResult<TResult>(
   const parsed = rules.parseResult(result);
   if (parsed === null) {
     return { status: "rejected", reason: "invalid-result" };
+  }
+  if (!fitsElapsed(play, rules.durationMs(parsed), now.getTime())) {
+    return { status: "rejected", reason: "invalid-duration" };
   }
   const score = rules.toScore(parsed);
   if (score !== null && !Number.isSafeInteger(score)) {

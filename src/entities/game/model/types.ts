@@ -18,6 +18,9 @@ export interface GameRules<TResult> {
   parseResult: (input: unknown) => TResult | null;
   // 높을수록 좋은 정수. 낮을수록 좋은 값은 부호를 뒤집는다. 무효 결과는 null이다.
   toScore: (result: TResult) => number | null;
+  // play에 걸린 시간(ms). 게임마다 재는 구간이 달라 게임이 결과에서 계산한다.
+  // 서버는 이 값이 토큰 발급 후 실제로 지난 시간보다 길면 거부한다.
+  durationMs: (result: TResult) => number;
   // 분포에 쓰는 값. 무효 결과는 null이고 분포에 넣지 않는다.
   measure: (result: TResult) => number | null;
   distribution: { min: number; max: number; bins: number; labels: [start: string, end: string] };

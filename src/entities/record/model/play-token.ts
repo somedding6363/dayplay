@@ -47,3 +47,13 @@ export async function readPlayToken(token: string, secret: string, now: number) 
   }
   return payload;
 }
+
+// 결과가 주장하는 play 시간이 토큰 발급 후 실제로 지난 시간 안에 들어가는지 본다.
+// 네트워크 지연으로 실제 시간은 항상 더 길기 때문에 짧은 쪽은 허용한다.
+export function fitsElapsed(play: PlayClaims, durationMs: number, now: number) {
+  return (
+    Number.isFinite(durationMs) &&
+    durationMs >= 0 &&
+    durationMs <= now - play.issuedAt + CLOCK_SKEW_MS
+  );
+}
