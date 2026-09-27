@@ -15,6 +15,20 @@
       "when": 1790441894566,
       "tag": "0001_user_nickname",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790477708693,
+      "tag": "0002_game_results",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790480255956,
+      "tag": "0003_plays",
+      "breakpoints": true
     }
   ]
 }
