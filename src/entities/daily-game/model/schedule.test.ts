@@ -5,6 +5,7 @@ import { getDailyGames } from "./schedule";
 import type { Schedule } from "./types";
 
 const start = dailySchedule.cycle[0].from;
+const activeCycle = (day: string) => dailySchedule.cycle.findLast((entry) => entry.from <= day);
 const days = Array.from({ length: 730 }, (_, index) => addDays(start, index));
 
 describe("dailySchedule", () => {
@@ -22,29 +23,26 @@ describe("dailySchedule", () => {
     }
   });
 
-  it("매일 cycle game이 하나 열리고, 같은 cycle game이 이틀 연속 나오지 않는다", () => {
+  it("매일 cycle game이 하나 열리고, 목록에 게임이 둘 이상이면 같은 게임이 이틀 연속 나오지 않는다", () => {
     let previous: string | undefined;
     for (const day of days) {
       const cycle = getDailyGames(dailySchedule, day).filter((game) => game.kind === "cycle");
       expect(cycle, day).toHaveLength(1);
-      expect(cycle[0].gameId, day).not.toBe(previous);
+      if ((activeCycle(day)?.games.length ?? 0) > 1) {
+        expect(cycle[0].gameId, day).not.toBe(previous);
+      }
       previous = cycle[0].gameId;
     }
   });
 
-  // 공개된 날짜의 결과가 바뀌면 이 테스트가 깨진다. 기대값을 고치지 말고 일정 변경을 되돌린다.
+  // 공개된 날짜의 결과가 바뀌면 이 테스트가 깨진다. 공개 후에는 기대값을 고치지 말고 일정 변경을 되돌린다.
+  // 공개 전(서비스 시작일 미정)이라 2026-09-27에 일정을 반응속도 cycle 하나로 다시 정했다.
   it("이미 정한 날짜의 게임은 바뀌지 않는다", () => {
-    expect(getDailyGames(dailySchedule, "2026-09-21")).toEqual([
-      { gameId: "reaction-time", kind: "week" },
-      { gameId: "typing-sprint", kind: "cycle" },
-    ]);
-    expect(getDailyGames(dailySchedule, "2026-09-26")).toEqual([
-      { gameId: "typing-sprint", kind: "cycle" },
-    ]);
-    expect(getDailyGames(dailySchedule, "2026-09-28")).toEqual([
-      { gameId: "reaction-time", kind: "week" },
-      { gameId: "stair-climb", kind: "cycle" },
-    ]);
+    for (const day of ["2026-09-21", "2026-09-26", "2026-09-28"]) {
+      expect(getDailyGames(dailySchedule, day)).toEqual([
+        { gameId: "reaction-time", kind: "cycle" },
+      ]);
+    }
   });
 });
 
