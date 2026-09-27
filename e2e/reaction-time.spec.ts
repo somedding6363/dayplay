@@ -9,7 +9,7 @@ const signalBoard = (page: Page) => board(page, /^지금 누르세요/);
 const resultBoard = (page: Page) => board(page, /^결과 /);
 const status = (page: Page) => section(page).getByRole("status");
 
-// 자동화 입력은 신호 직후 바로 눌러서 최소 반응 시간보다 빠르면 무효가 된다.
+// 자동화 입력은 신호 프레임이 그려지기 전에 누르면 신호 전 입력(무효)이 될 수 있다.
 const humanDelay = (page: Page) => page.waitForTimeout(200);
 
 test.beforeEach(async ({ page }) => {
