@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { cx } from "@/shared/lib";
+import { SiteFooter } from "@/widgets/site-footer";
+import { SiteHeader } from "@/widgets/site-header";
 import { suit } from "./fonts/suit";
 import "./styles/globals.css";
 
@@ -11,7 +13,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className={cx(suit.variable, "h-full antialiased")}>
-      <body className="flex min-h-full min-w-70 flex-col">{children}</body>
+      <body className="flex min-h-full min-w-70 flex-col">
+        <SiteHeader />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { Avatar } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
@@ -64,6 +65,13 @@ export function AccountMenu({ name, email, image }: AccountMenuProps) {
             {email ? <span className="truncate text-fine-print text-muted">{email}</span> : null}
           </div>
           <div className="mx-1 mb-1 border-t border-hairline-soft" />
+          <Link
+            href="/account"
+            onClick={() => setOpen(false)}
+            className="flex h-11 items-center rounded-xs px-3 text-button-utility hover:bg-canvas-soft"
+          >
+            계정 설정
+          </Link>
           <form action={signOutUser}>
             <Button type="submit" variant="ghost" shape="rounded" align="start" className="px-3">
               로그아웃

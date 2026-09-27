@@ -1,17 +1,8 @@
 import type { AdapterAccountType } from "next-auth/adapters";
-import { integer, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
+import { users } from "@/entities/user";
 
 // Auth.js Drizzle adapter가 요구하는 모양. 세션은 JWT라 sessions, verification_tokens 테이블은 두지 않는다.
-export const users = pgTable("users", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: text("name"),
-  email: text("email").unique(),
-  emailVerified: timestamp("email_verified", { mode: "date" }),
-  image: text("image"),
-});
-
 export const accounts = pgTable(
   "accounts",
   {
