@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { CSSProperties } from "react";
-import { GameBoard } from "./GameBoard";
+import { Button } from "@/shared/ui/button";
+import { GameBoard, GamePanel } from "./GameBoard";
 
 type GameColorVars = CSSProperties & Record<`--game-${string}`, string>;
 
@@ -75,4 +76,19 @@ export const Result: Story = {
 
 export const InvalidResult: Story = {
   args: { label: "-", description: "다시 하려면 누르세요." },
+};
+
+// 시작 전과 결과처럼 판을 눌러 시작하면 안 되는 상태. 판 아래쪽 버튼으로만 시작한다.
+export const Panel: StoryObj<typeof GamePanel> = {
+  render: () => (
+    <GamePanel
+      label="반응속도"
+      description="색이 바뀌면 누르세요."
+      action={<Button type="button">시작</Button>}
+    />
+  ),
+};
+
+export const PanelResult: StoryObj<typeof GamePanel> = {
+  render: () => <GamePanel label="187ms" action={<Button type="button">다시 하기</Button>} />,
 };

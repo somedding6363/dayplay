@@ -8,6 +8,7 @@ import {
   type SaveGameResult,
 } from "@/entities/record/server";
 import { auth } from "@/features/auth/server";
+import { oddColor } from "@/features/games/odd-color";
 import { reactionTime } from "@/features/games/reaction-time";
 import { tenSeconds } from "@/features/games/ten-seconds";
 import { todayKey } from "@/shared/lib";
@@ -44,6 +45,13 @@ const savers = new Map<string, GameSaver>([
     {
       save: (input) => saveGameResult(input, tenSeconds),
       merge: (input) => mergeGameValue(input, tenSeconds),
+    },
+  ],
+  [
+    oddColor.id,
+    {
+      save: (input) => saveGameResult(input, oddColor),
+      merge: (input) => mergeGameValue(input, oddColor),
     },
   ],
 ]);
