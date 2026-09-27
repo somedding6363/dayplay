@@ -1,18 +1,36 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cx } from "@/shared/lib";
 
-interface GameBoardProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+type GameBoardTone = "soft" | "signal";
+
+interface GameBoardProps extends ComponentProps<"button"> {
   label: ReactNode;
   description?: ReactNode;
   inputs?: string[];
+  // signal은 반응해야 하는 순간이다. 판 전체를 게임 색으로 바꾼다.
+  tone?: GameBoardTone;
 }
 
-export function GameBoard({ label, description, inputs, className, ...props }: GameBoardProps) {
+const toneClass: Record<GameBoardTone, { board: string; ring: string; input: string }> = {
+  soft: { board: "bg-game-soft text-game-ink", ring: "bg-game-soft", input: "text-game" },
+  // 흰 글자는 게임 색 위에서 대비가 3:1 수준이라 작은 안내 글자까지 읽히도록 ink를 쓴다.
+  signal: { board: "bg-game text-ink", ring: "bg-game", input: "text-ink" },
+};
+
+export function GameBoard({
+  label,
+  description,
+  inputs,
+  tone = "soft",
+  className,
+  ...props
+}: GameBoardProps) {
   return (
     <button
       type="button"
       className={cx(
-        "@container relative block aspect-board min-h-64 w-full overflow-hidden rounded-md bg-game-soft text-left text-game-ink",
+        "@container relative block aspect-board min-h-64 w-full touch-manipulation overflow-hidden rounded-md text-left select-none",
+        toneClass[tone].board,
         className,
       )}
       {...props}
@@ -21,7 +39,7 @@ export function GameBoard({ label, description, inputs, className, ...props }: G
         aria-hidden="true"
         className="absolute -top-24 -right-24 flex size-96 items-start justify-end rounded-full bg-game-mid/40"
       >
-        <span className="size-72 rounded-full bg-game-soft" />
+        <span className={cx("size-72 rounded-full", toneClass[tone].ring)} />
       </span>
 
       {/* 화면 폭이 아니라 판 자체의 폭에 맞춰 크기를 바꾼다. */}
@@ -34,7 +52,10 @@ export function GameBoard({ label, description, inputs, className, ...props }: G
         {inputs ? (
           <span
             aria-hidden="true"
-            className="relative flex flex-col gap-1 text-caption tracking-widest text-game uppercase"
+            className={cx(
+              "relative flex flex-col gap-1 text-caption tracking-widest uppercase",
+              toneClass[tone].input,
+            )}
           >
             {inputs.map((input) => (
               <span key={input}>{input}</span>

@@ -1,9 +1,6 @@
-export interface GameColor {
-  color: string;
-  soft: string;
-  mid: string;
-  ink: string;
-}
+import type { GameColor } from "@/entities/game";
+
+export type { GameColor };
 
 export interface TodayGame {
   gameId: string;
