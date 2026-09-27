@@ -12,8 +12,6 @@ export interface GameColor {
 export interface GameRules<TResult> {
   // kebab-case, 변경 금지. 기록과 일정이 이 값을 참조한다.
   id: string;
-  // 값·검증 규칙을 바꾸면 올린다.
-  version: number;
   name: string;
   instruction: string;
   color: GameColor;

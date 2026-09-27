@@ -14,7 +14,6 @@ export const gameResults = pgTable(
     // daily_games 테이블 도입 전이라 (date, game_id)로 오늘의 게임을 가리킨다.
     date: date("date", { mode: "string" }).notNull(),
     gameId: text("game_id").notNull(),
-    gameVersion: integer("game_version").notNull(),
     // 비교·정렬에 쓰는 결과 값(ms 등). 좋은 방향은 게임 규칙의 better다. 무효 결과는 null이고 순위에서 가장 뒤다.
     value: integer("value"),
     achievedAt: timestamp("achieved_at", { withTimezone: true, mode: "date" }).notNull(),

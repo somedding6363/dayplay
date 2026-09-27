@@ -23,7 +23,7 @@ export type SaveGameResult =
     }
   | { status: "rejected"; reason: SaveRejectReason };
 
-type SaveRules = Pick<GameRules<unknown>, "id" | "version" | "better">;
+type SaveRules = Pick<GameRules<unknown>, "id" | "better">;
 
 // 첫 play는 무효여도 내 기록이 된다. 이후에는 값이 있는 결과가 무효(null)를, 게임 방향(better)으로 더 좋은 값이 이긴다.
 // 시도 횟수는 결과와 상관없이 더한다. neon-http는 대화형 트랜잭션이 없어서 한 문장으로 처리하며,
@@ -47,7 +47,6 @@ async function upsertBest(
       userId,
       date: play.date,
       gameId: play.gameId,
-      gameVersion: rules.version,
       value,
       achievedAt: now,
       attempts,
@@ -55,7 +54,6 @@ async function upsertBest(
     .onConflictDoUpdate({
       target: [gameResults.userId, gameResults.date, gameResults.gameId],
       set: {
-        gameVersion: keepBetter(gameResults.gameVersion, "game_version"),
         value: keepBetter(gameResults.value, "value"),
         achievedAt: keepBetter(gameResults.achievedAt, "achieved_at"),
         attempts: sql`${gameResults.attempts} + excluded.attempts`,

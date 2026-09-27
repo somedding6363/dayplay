@@ -53,7 +53,6 @@ function formatValue(ms: number | null) {
 
 export const reactionTimeRules: GameRules<ReactionTimeResult> = {
   id: "reaction-time",
-  version: 1,
   name: "반응속도",
   instruction: "색이 바뀌면 누르세요.",
   color: { color: "#E4704F", soft: "#FBE6DD", mid: "#F3C3B1", ink: "#8A3A22" },
