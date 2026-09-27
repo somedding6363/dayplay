@@ -9,7 +9,7 @@ export type SaveState =
   | { status: "retry-later" }
   | FinishPlayResult;
 
-export function saveMessage(state: SaveState, format: (result: unknown) => string) {
+export function saveMessage(state: SaveState, formatValue: (value: number | null) => string) {
   switch (state.status) {
     case "saving":
       return "기록을 저장하는 중이에요.";
@@ -19,7 +19,7 @@ export function saveMessage(state: SaveState, format: (result: unknown) => strin
     case "saved":
       return state.improved
         ? `오늘 내 기록이에요. 오늘 ${state.attempts}번째 play예요.`
-        : `오늘 내 기록은 ${format(state.best.rawResult)}이에요. 오늘 ${state.attempts}번째 play예요.`;
+        : `오늘 내 기록은 ${formatValue(state.best)}이에요. 오늘 ${state.attempts}번째 play예요.`;
     case "retry-later":
       return "지금은 저장하지 못해 이 기기에 남겼어요. 오늘 다시 들어오면 다시 저장해요.";
     case "rejected":

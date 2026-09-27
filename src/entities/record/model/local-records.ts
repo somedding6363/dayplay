@@ -7,9 +7,8 @@ export interface LocalRecord {
   id: string;
   date: string;
   gameId: string;
-  // 이 칸의 최고 결과. 더 좋은 결과가 나올 때만 바뀐다.
-  rawResult: unknown;
-  // 비교용 값(ms 등). 서버는 믿지 않고 rawResult로 다시 계산한다. 무효는 null.
+  // 이 칸의 최고 값(ms 등). 더 좋은 값이 나올 때만 바뀐다. 무효는 null.
+  // 병합할 때 서버는 결과를 다시 계산할 수 없어 게임 규칙의 범위만 검증한다.
   value: number | null;
   // 최고 결과를 낸 play의 토큰. 토큰 발급에 실패한 play는 null이고, 이 기기에 보여주기만 하고 병합하지 않는다.
   playToken: string | null;
@@ -22,13 +21,12 @@ export interface LocalRecord {
 export interface LocalPlay {
   date: string;
   gameId: string;
-  rawResult: unknown;
   value: number | null;
   playToken: string | null;
   playedAt: string;
 }
 
-const STORAGE_KEY = "dayplay:records:v3";
+const STORAGE_KEY = "dayplay:records:v4";
 const listeners = new Set<() => void>();
 const empty: LocalRecord[] = [];
 let cache: { raw: string | null; records: LocalRecord[] } = { raw: null, records: empty };
@@ -43,7 +41,6 @@ function isLocalRecord(value: unknown): value is LocalRecord {
     typeof value.date === "string" &&
     "gameId" in value &&
     typeof value.gameId === "string" &&
-    "rawResult" in value &&
     "value" in value &&
     (value.value === null || typeof value.value === "number") &&
     "playToken" in value &&
@@ -100,12 +97,11 @@ function write(records: LocalRecord[]) {
   listeners.forEach((listener) => listener());
 }
 
-// 끝낸 play 하나를 그날 그 게임의 칸에 반영한다. 칸이 없으면 만들고, 있으면 횟수를 늘리고 더 좋을 때만 최고 결과를 바꾼다.
+// 끝낸 play 하나를 그날 그 게임의 칸에 반영한다. 칸이 없으면 만들고, 있으면 횟수를 늘리고 더 좋을 때만 최고 값을 바꾼다.
 export function recordLocalPlay(play: LocalPlay, better: Better) {
   const records = readLocalRecords();
   const current = records.find((item) => item.date === play.date && item.gameId === play.gameId);
   const best = {
-    rawResult: play.rawResult,
     value: play.value,
     playToken: play.playToken,
     achievedAt: play.playedAt,

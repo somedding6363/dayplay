@@ -4,7 +4,7 @@ import { createPlayToken, fitsElapsed, PLAY_TOKEN_MAX_AGE_MS, readPlayToken } fr
 
 const secret = "test-secret";
 const issuedAt = Date.UTC(2026, 8, 28, 14, 59, 0);
-const claims = { playId: "p1", gameId: "reaction-time", date: "2026-09-28", issuedAt };
+const claims = { gameId: "reaction-time", date: "2026-09-28", issuedAt };
 
 describe("play token", () => {
   it("발급한 토큰을 읽으면 같은 claims가 나온다", async () => {
@@ -42,7 +42,7 @@ describe("play token", () => {
   });
 
   it("서명은 맞아도 claims 모양이 틀리면 거부한다", async () => {
-    const token = await signToken({ playId: "p1", gameId: "reaction-time", issuedAt }, secret);
+    const token = await signToken({ gameId: "reaction-time", issuedAt }, secret);
     expect(await readPlayToken(token, secret, issuedAt)).toBeNull();
   });
 });

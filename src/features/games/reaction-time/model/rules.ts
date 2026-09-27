@@ -47,7 +47,7 @@ function parseResult(input: unknown): ReactionTimeResult | null {
   return { ms, elapsedMs };
 }
 
-function format({ ms }: ReactionTimeResult) {
+function formatValue(ms: number | null) {
   return ms === null ? "-" : `${ms}ms`;
 }
 
@@ -60,9 +60,9 @@ export const reactionTimeRules: GameRules<ReactionTimeResult> = {
   parseResult,
   toValue: ({ ms }) => ms,
   better: "lower",
+  isValidValue: (ms) => isInteger(ms, REACTION_MIN_MS, REACTION_TIMEOUT_MS),
   durationMs: ({ elapsedMs }) => elapsedMs,
-  measure: ({ ms }) => ms,
   distribution: { min: 100, max: 600, bins: 10, labels: ["빠름", "느림"] },
-  formatResult: format,
-  formatSummary: format,
+  formatResult: ({ ms }) => formatValue(ms),
+  formatValue,
 };

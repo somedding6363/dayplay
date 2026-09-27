@@ -1,8 +1,8 @@
 import type { Better } from "@/entities/game";
 import { isBetterValue, type LocalRecord } from "@/entities/record";
 
+// 기록이 없으면 undefined, 무효 기록만 있으면 value가 null이다.
 export interface BestResult {
-  rawResult: unknown;
   value: number | null;
 }
 

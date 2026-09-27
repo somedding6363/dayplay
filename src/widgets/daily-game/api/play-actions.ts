@@ -1,7 +1,12 @@
 "use server";
 
 import { dailySchedule, getDailyGames } from "@/entities/daily-game";
-import { issuePlayToken, saveGameResult, type SaveGameResult } from "@/entities/record/server";
+import {
+  issuePlayToken,
+  mergeGameValue,
+  saveGameResult,
+  type SaveGameResult,
+} from "@/entities/record/server";
 import { auth } from "@/features/auth/server";
 import { reactionTime } from "@/features/games/reaction-time";
 import { todayKey } from "@/shared/lib";
@@ -12,24 +17,34 @@ interface SaveInput {
   result: unknown;
 }
 
-interface SaveOptions {
-  maxTokenAgeMs?: number;
-  attempts?: number;
+interface MergeInput {
+  userId: string;
+  playToken: string;
+  value: number | null;
+  attempts: number;
+}
+
+interface GameSaver {
+  save: (input: SaveInput) => Promise<SaveGameResult>;
+  merge: (input: MergeInput) => Promise<SaveGameResult>;
 }
 
 // 게임마다 결과 타입이 달라서 rules를 감싼 저장 함수로 등록한다.
-const savers = new Map<
-  string,
-  (input: SaveInput, options?: SaveOptions) => Promise<SaveGameResult<unknown>>
->([[reactionTime.id, (input, options) => saveGameResult(input, reactionTime, options)]]);
+const savers = new Map<string, GameSaver>([
+  [
+    reactionTime.id,
+    {
+      save: (input) => saveGameResult(input, reactionTime),
+      merge: (input) => mergeGameValue(input, reactionTime),
+    },
+  ],
+]);
 
-// 로그인 직후 병합은 오늘 끝낸 play만 받으므로 토큰은 하루까지 인정한다.
-const MERGE_TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const MERGE_MAX_RECORDS = 20;
 // 브라우저가 센 횟수라 서버가 확인할 수 없다. 틀어져도 시도 횟수만 바뀌므로 범위만 제한한다.
 const MERGE_MAX_ATTEMPTS = 1000;
 
-export type FinishPlayResult = SaveGameResult<unknown> | { status: "signed-out" };
+export type FinishPlayResult = SaveGameResult | { status: "signed-out" };
 
 export interface StartedPlay {
   playToken: string;
@@ -57,14 +72,14 @@ export async function finishPlay(
   if (!session?.user?.id) {
     return { status: "signed-out" };
   }
-  const save = savers.get(gameId);
-  if (!save) {
+  const saver = savers.get(gameId);
+  if (!saver) {
     return { status: "rejected", reason: "game-mismatch" };
   }
   if (typeof playToken !== "string") {
     return { status: "rejected", reason: "invalid-token" };
   }
-  return save({ userId: session.user.id, playToken, result });
+  return saver.save({ userId: session.user.id, playToken, result });
 }
 
 export interface MergedRecord {
@@ -95,7 +110,8 @@ export async function mergeLocalRecords(records: unknown): Promise<MergedRecord[
       typeof record.gameId !== "string" ||
       !("playToken" in record) ||
       typeof record.playToken !== "string" ||
-      !("rawResult" in record) ||
+      !("value" in record) ||
+      (record.value !== null && typeof record.value !== "number") ||
       !("attempts" in record) ||
       typeof record.attempts !== "number" ||
       !Number.isInteger(record.attempts) ||
@@ -104,14 +120,16 @@ export async function mergeLocalRecords(records: unknown): Promise<MergedRecord[
     ) {
       continue;
     }
-    const save = savers.get(record.gameId);
-    if (!save) {
+    const saver = savers.get(record.gameId);
+    if (!saver) {
       continue;
     }
-    const saved = await save(
-      { userId, playToken: record.playToken, result: record.rawResult },
-      { maxTokenAgeMs: MERGE_TOKEN_MAX_AGE_MS, attempts: record.attempts },
-    );
+    const saved = await saver.merge({
+      userId,
+      playToken: record.playToken,
+      value: record.value,
+      attempts: record.attempts,
+    });
     merged.push({ id: record.id, stored: saved.status === "saved" });
   }
   return merged;

@@ -1,5 +1,4 @@
-export { getBestResults } from "./api/get-best-results";
-export type { BestResult } from "./api/get-best-results";
+export { getBestValues } from "./api/get-best-values";
 export { issuePlayToken } from "./api/issue-play-token";
-export { saveGameResult } from "./api/save-game-result";
+export { mergeGameValue, saveGameResult } from "./api/save-game-result";
 export type { SaveGameResult, SaveRejectReason } from "./api/save-game-result";

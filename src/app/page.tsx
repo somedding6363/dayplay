@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { dailySchedule, getDailyGames } from "@/entities/daily-game";
-import { getBestResults } from "@/entities/record/server";
+import { getBestValues } from "@/entities/record/server";
 import { auth } from "@/features/auth/server";
 import { dateKeyToKstDate, formatKstDate, todayKey } from "@/shared/lib";
 import { PageContainer } from "@/shared/ui/page-container";
@@ -16,7 +16,7 @@ export default async function Home() {
   const directions = Object.fromEntries(
     [...playableGames.values()].map((game) => [game.gameId, game.better]),
   );
-  const bests = session ? await getBestResults(session.user.id, directions) : {};
+  const bests = session ? await getBestValues(session.user.id, directions) : {};
 
   const games: TodayGame[] = getDailyGames(dailySchedule, today).flatMap(({ gameId }) => {
     const meta = playableGames.get(gameId) ?? mockGameMeta[gameId];

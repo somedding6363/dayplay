@@ -52,7 +52,7 @@ test("비로그인으로 여러 번 하면 그날 그 게임의 한 기록에 �
   }
 
   const records = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem("dayplay:records:v3") ?? "[]"),
+    JSON.parse(localStorage.getItem("dayplay:records:v4") ?? "[]"),
   );
   expect(records).toHaveLength(1);
   expect(records[0]).toMatchObject({ gameId: "reaction-time", attempts: 2 });

@@ -19,13 +19,16 @@ interface DailyGameProps {
   // 판정 날짜(KST date key).
   today: string;
   signedIn: boolean;
-  // 로그인 사용자의 게임별 모든 날짜 최고 기록.
-  bests: Record<string, BestResult>;
+  // 로그인 사용자의 게임별 모든 날짜 최고 기록 값. 기록이 없는 게임은 키가 없다.
+  bests: Record<string, number | null>;
   // server에서 게임마다 미리 그린 옆 영역. 선택한 게임의 것만 보여준다.
   asides: Record<string, ReactNode>;
 }
 
 const formatUnknown = () => "-";
+
+const serverBest = (bests: Record<string, number | null>, gameId: string) =>
+  gameId in bests ? { value: bests[gameId] } : undefined;
 
 // 옆 영역의 순위·분포도 선택한 게임 색을 따라야 해서 두 column을 같은 색 scope에 둔다.
 // 게임 영역은 sticky라서 긴 옆 영역을 먼저 스크롤하고, grid 끝에 닿으면 함께 올라간다.
@@ -101,11 +104,15 @@ export function DailyGame({ games, date, today, signedIn, bests, asides }: Daily
           best={
             playable
               ? signedIn
-                ? pickBest(playable.better, bests[selected.gameId], sessionBests[selected.gameId])
+                ? pickBest(
+                    playable.better,
+                    serverBest(bests, selected.gameId),
+                    sessionBests[selected.gameId],
+                  )
                 : bestOfLocal(localRecords, selected.gameId, playable.better)
               : undefined
           }
-          format={playable?.format ?? formatUnknown}
+          formatValue={playable?.formatValue ?? formatUnknown}
           local={!signedIn}
         />
         {asides[selected.gameId]}

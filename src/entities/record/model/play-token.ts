@@ -2,7 +2,6 @@ import { signToken, verifyToken } from "@/shared/lib";
 
 // play를 시작할 때 서버가 발급하는 정보. 결과를 저장할 때 이 play가 서버가 발급한 play인지 확인한다(D-16).
 export interface PlayClaims {
-  playId: string;
   gameId: string;
   // play를 시작한 날의 KST date key. 자정을 넘겨 끝내도 이 날짜의 기록이다.
   date: string;
@@ -19,8 +18,6 @@ function isPlayClaims(value: unknown): value is PlayClaims {
   return (
     typeof value === "object" &&
     value !== null &&
-    "playId" in value &&
-    typeof value.playId === "string" &&
     "gameId" in value &&
     typeof value.gameId === "string" &&
     "date" in value &&

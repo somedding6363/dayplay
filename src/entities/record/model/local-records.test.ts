@@ -9,7 +9,6 @@ import {
 const play = (overrides: Partial<LocalPlay>): LocalPlay => ({
   date: "2026-09-28",
   gameId: "reaction-time",
-  rawResult: { ms: 200 },
   value: 200,
   playToken: "token",
   playedAt: "2026-09-28T01:00:00.000Z",
@@ -29,19 +28,15 @@ describe("local records", () => {
     recordLocalPlay(play({ value: 200, playedAt: "t1" }), "lower");
     const [first] = readLocalRecords();
 
-    recordLocalPlay(play({ value: 250, rawResult: { ms: 250 }, playedAt: "t2" }), "lower");
-    recordLocalPlay(
-      play({ value: 180, rawResult: { ms: 180 }, playToken: "best", playedAt: "t3" }),
-      "lower",
-    );
-    recordLocalPlay(play({ value: 190, rawResult: { ms: 190 }, playedAt: "t4" }), "lower");
+    recordLocalPlay(play({ value: 250, playedAt: "t2" }), "lower");
+    recordLocalPlay(play({ value: 180, playToken: "best", playedAt: "t3" }), "lower");
+    recordLocalPlay(play({ value: 190, playedAt: "t4" }), "lower");
 
     expect(readLocalRecords()).toEqual([
       {
         id: first.id,
         date: "2026-09-28",
         gameId: "reaction-time",
-        rawResult: { ms: 180 },
         value: 180,
         playToken: "best",
         achievedAt: "t3",
@@ -59,11 +54,11 @@ describe("local records", () => {
   });
 
   it("무효 결과도 횟수에 세고, 값이 있는 결과가 무효를 이긴다", () => {
-    recordLocalPlay(play({ value: null, rawResult: { ms: null } }), "lower");
+    recordLocalPlay(play({ value: null }), "lower");
     expect(readLocalRecords()[0]).toMatchObject({ value: null, attempts: 1 });
 
     recordLocalPlay(play({ value: 300 }), "lower");
-    recordLocalPlay(play({ value: null, rawResult: { ms: null } }), "lower");
+    recordLocalPlay(play({ value: null }), "lower");
     expect(readLocalRecords()[0]).toMatchObject({ value: 300, attempts: 3 });
   });
 
@@ -85,12 +80,12 @@ describe("local records", () => {
   });
 
   it("깨진 저장 값은 무시한다", () => {
-    localStorage.setItem("dayplay:records:v3", "{not json");
+    localStorage.setItem("dayplay:records:v4", "{not json");
     expect(readLocalRecords()).toEqual([]);
 
     recordLocalPlay(play({}), "lower");
     const [valid] = readLocalRecords();
-    localStorage.setItem("dayplay:records:v3", JSON.stringify([{ id: 1 }, valid]));
+    localStorage.setItem("dayplay:records:v4", JSON.stringify([{ id: 1 }, valid]));
     expect(readLocalRecords()).toEqual([valid]);
   });
 });

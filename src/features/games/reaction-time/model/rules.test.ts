@@ -9,7 +9,7 @@ import {
   toReactionMs,
 } from "./rules";
 
-const { parseResult, toValue, formatResult, measure } = reactionTimeRules;
+const { parseResult, toValue, formatResult, formatValue, isValidValue } = reactionTimeRules;
 
 describe("toReactionMs", () => {
   it("신호부터 입력까지의 시간을 정수 ms로 바꾼다", () => {
@@ -45,15 +45,23 @@ describe("reactionTimeRules", () => {
     expect(result).toEqual({ ms: 187, elapsedMs: 3187 });
     expect(result && toValue(result)).toBe(187);
     expect(result && formatResult(result)).toBe("187ms");
-    expect(result && measure(result)).toBe(187);
   });
 
-  it("무효 결과는 값과 분포 값이 null이고 -로 표시한다", () => {
+  it("무효 결과는 값이 null이고 -로 표시한다", () => {
     const result = parseResult({ ms: null, elapsedMs: 800 });
     expect(result).toEqual({ ms: null, elapsedMs: 800 });
     expect(result && toValue(result)).toBeNull();
-    expect(result && measure(result)).toBeNull();
     expect(result && formatResult(result)).toBe("-");
+  });
+
+  it("저장된 값만으로 표시하고 범위를 검증한다", () => {
+    expect(formatValue(187)).toBe("187ms");
+    expect(formatValue(null)).toBe("-");
+    expect(isValidValue(1)).toBe(true);
+    expect(isValidValue(REACTION_TIMEOUT_MS)).toBe(true);
+    expect(isValidValue(0)).toBe(false);
+    expect(isValidValue(REACTION_TIMEOUT_MS + 1)).toBe(false);
+    expect(isValidValue(187.5)).toBe(false);
   });
 
   it("작을수록 좋은 기록이다", () => {

@@ -55,7 +55,7 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
     const value = game.value(result);
     setResultText(game.format(result));
     setPhase("finished");
-    onRecord({ rawResult: result, value });
+    onRecord({ value });
 
     const play = await started.current;
     const saveLocal = () =>
@@ -63,7 +63,6 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
         {
           date: play?.date ?? today,
           gameId: game.gameId,
-          rawResult: result,
           value,
           playToken: play?.playToken ?? null,
           playedAt: new Date().toISOString(),
@@ -129,7 +128,7 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
       />
       <div className="flex min-h-9 flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <p role="status" className="text-caption text-muted">
-          {save ? saveMessage(save, game.format) : null}
+          {save ? saveMessage(save, game.formatValue) : null}
         </p>
         {save?.status === "local" ? <SignInButton label="로그인하고 기록 저장" size="sm" /> : null}
       </div>
