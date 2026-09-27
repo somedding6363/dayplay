@@ -81,7 +81,7 @@ export function TenSecondsGame({ onFinish }: GameProps<TenSecondsResult>) {
   return (
     <GameBoard
       ref={boardRef}
-      label={hidden ? "?.??초" : `${formatSeconds(shownMs)}초`}
+      label={hidden ? "?.???초" : `${formatSeconds(shownMs)}초`}
       description={hidden ? "10초라고 생각할 때 누르세요." : "시간이 흐르고 있어요."}
       inputs={["click", "touch", "space"]}
       // 흐르는 숫자는 읽지 않는다. 시간이 가려진 뒤에만 이름이 바뀐다.

@@ -20,9 +20,9 @@ export function toElapsedMs(gapMs: number) {
   return ms >= 1 && ms <= TIMEOUT_MS ? ms : null;
 }
 
-// 0.01초 단위로 반올림한 "9.92"
+// 저장 단위와 같은 1ms(0.001초) 단위. "9.956"
 export function formatSeconds(ms: number) {
-  return (Math.round(ms / 10) / 100).toFixed(2);
+  return (Math.round(ms) / 1000).toFixed(3);
 }
 
 function parseResult(input: unknown): TenSecondsResult | null {
@@ -51,7 +51,7 @@ export const tenSecondsRules: GameRules<TenSecondsResult> = {
   better: "lower",
   isValidValue: (errorMs) => isInteger(errorMs, 0, TIMEOUT_MS - TARGET_MS),
   durationMs: ({ elapsedMs }) => elapsedMs ?? TIMEOUT_MS,
-  distribution: { min: 0, max: 1000, bins: 10, labels: ["정확", "벗어남"] },
+  distribution: { min: 0, max: 1000, bins: 10 },
   formatResult: ({ elapsedMs }) => (elapsedMs === null ? "-" : `${formatSeconds(elapsedMs)}초`),
   formatValue,
 };

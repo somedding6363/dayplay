@@ -24,10 +24,11 @@ describe("tenSecondsRules", () => {
 
   it("게임 판은 멈춘 시각, 저장된 기록은 차이로 보여준다", () => {
     const result = parseResult({ elapsedMs: 9920 });
-    expect(result && formatResult(result)).toBe("9.92초");
-    expect(formatValue(80)).toBe("±0.08초");
-    expect(formatValue(0)).toBe("±0.00초");
-    expect(formatSeconds(9925)).toBe("9.93");
+    expect(result && formatResult(result)).toBe("9.920초");
+    expect(formatValue(80)).toBe("±0.080초");
+    expect(formatValue(44)).toBe("±0.044초");
+    expect(formatValue(0)).toBe("±0.000초");
+    expect(formatSeconds(9956.4)).toBe("9.956");
   });
 
   it("제한 시간 안에 멈추지 않으면 무효이고 -로 표시한다", () => {
