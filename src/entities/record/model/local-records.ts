@@ -1,19 +1,32 @@
 import { isBetterScore } from "./best";
 
-// 비로그인 기록. 날짜·게임마다 가장 좋은 play 하나만 브라우저에 남긴다.
+// 비로그인 기록. 날짜·게임마다 한 칸을 두고, 그 칸을 play마다 갱신한다.
 export interface LocalRecord {
-  // 병합 요청의 idempotency key
+  // 칸이 처음 생길 때 만든다. 같은 날짜·게임을 계속 해도 바뀌지 않는다. 병합 요청의 key다.
   id: string;
+  date: string;
+  gameId: string;
+  // 이 칸의 최고 결과. 더 좋은 결과가 나올 때만 바뀐다.
+  rawResult: unknown;
+  score: number | null;
+  // 최고 결과를 낸 play의 토큰. 토큰 발급에 실패한 play는 null이고, 이 기기에 보여주기만 하고 병합하지 않는다.
+  playToken: string | null;
+  achievedAt: string;
+  // 끝낸 play 수. 무효와 더 낮은 결과도 센다.
+  attempts: number;
+  lastPlayedAt: string;
+}
+
+export interface LocalPlay {
   date: string;
   gameId: string;
   rawResult: unknown;
   score: number | null;
-  // 토큰 발급에 실패한 play는 null. 이 기기에서 보여주기만 하고 계정에 병합하지 않는다.
   playToken: string | null;
-  finishedAt: string;
+  playedAt: string;
 }
 
-const STORAGE_KEY = "dayplay:records:v1";
+const STORAGE_KEY = "dayplay:records:v2";
 const listeners = new Set<() => void>();
 const empty: LocalRecord[] = [];
 let cache: { raw: string | null; records: LocalRecord[] } = { raw: null, records: empty };
@@ -33,8 +46,12 @@ function isLocalRecord(value: unknown): value is LocalRecord {
     (value.score === null || typeof value.score === "number") &&
     "playToken" in value &&
     (value.playToken === null || typeof value.playToken === "string") &&
-    "finishedAt" in value &&
-    typeof value.finishedAt === "string"
+    "achievedAt" in value &&
+    typeof value.achievedAt === "string" &&
+    "attempts" in value &&
+    Number.isInteger(value.attempts) &&
+    "lastPlayedAt" in value &&
+    typeof value.lastPlayedAt === "string"
   );
 }
 
@@ -81,15 +98,33 @@ function write(records: LocalRecord[]) {
   listeners.forEach((listener) => listener());
 }
 
-export function saveLocalRecord(record: LocalRecord) {
+// 끝낸 play 하나를 그날 그 게임의 칸에 반영한다. 칸이 없으면 만들고, 있으면 횟수를 늘리고 더 좋을 때만 최고 결과를 바꾼다.
+export function recordLocalPlay(play: LocalPlay) {
   const records = readLocalRecords();
-  const current = records.find(
-    (item) => item.date === record.date && item.gameId === record.gameId,
-  );
-  if (current && !isBetterScore(record.score, current.score)) {
-    return;
-  }
-  write([...records.filter((item) => item !== current), record]);
+  const current = records.find((item) => item.date === play.date && item.gameId === play.gameId);
+  const best = {
+    rawResult: play.rawResult,
+    score: play.score,
+    playToken: play.playToken,
+    achievedAt: play.playedAt,
+  };
+
+  const next: LocalRecord = current
+    ? {
+        ...current,
+        ...(isBetterScore(play.score, current.score) ? best : {}),
+        attempts: current.attempts + 1,
+        lastPlayedAt: play.playedAt,
+      }
+    : {
+        id: crypto.randomUUID(),
+        date: play.date,
+        gameId: play.gameId,
+        ...best,
+        attempts: 1,
+        lastPlayedAt: play.playedAt,
+      };
+  write(records.map((item) => (item === current ? next : item)).concat(current ? [] : [next]));
 }
 
 export function removeLocalRecords(ids: string[]) {

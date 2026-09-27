@@ -14,6 +14,7 @@ interface SaveInput {
 
 interface SaveOptions {
   maxTokenAgeMs?: number;
+  attempts?: number;
 }
 
 // 게임마다 결과 타입이 달라서 rules를 감싼 저장 함수로 등록한다.
@@ -25,6 +26,8 @@ const savers = new Map<
 // 로그인 직후 병합은 오늘 끝낸 play만 받으므로 토큰은 하루까지 인정한다.
 const MERGE_TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const MERGE_MAX_RECORDS = 20;
+// 브라우저가 센 횟수라 서버가 확인할 수 없다. 틀어져도 시도 횟수만 바뀌므로 범위만 제한한다.
+const MERGE_MAX_ATTEMPTS = 1000;
 
 export type FinishPlayResult = SaveGameResult<unknown> | { status: "signed-out" };
 
@@ -92,7 +95,12 @@ export async function mergeLocalRecords(records: unknown): Promise<MergedRecord[
       typeof record.gameId !== "string" ||
       !("playToken" in record) ||
       typeof record.playToken !== "string" ||
-      !("rawResult" in record)
+      !("rawResult" in record) ||
+      !("attempts" in record) ||
+      typeof record.attempts !== "number" ||
+      !Number.isInteger(record.attempts) ||
+      record.attempts < 1 ||
+      record.attempts > MERGE_MAX_ATTEMPTS
     ) {
       continue;
     }
@@ -102,7 +110,7 @@ export async function mergeLocalRecords(records: unknown): Promise<MergedRecord[
     }
     const saved = await save(
       { userId, playToken: record.playToken, result: record.rawResult },
-      { maxTokenAgeMs: MERGE_TOKEN_MAX_AGE_MS },
+      { maxTokenAgeMs: MERGE_TOKEN_MAX_AGE_MS, attempts: record.attempts },
     );
     merged.push({ id: record.id, stored: saved.status === "saved" });
   }

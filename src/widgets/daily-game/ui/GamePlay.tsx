@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { GameBoard } from "@/entities/game";
-import { saveLocalRecord } from "@/entities/record";
+import { recordLocalPlay } from "@/entities/record";
 import { SignInButton } from "@/features/auth";
 import { finishPlay, startPlay, type StartedPlay } from "../api/play-actions";
 import type { BestResult } from "../model/best";
@@ -59,14 +59,13 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
 
     const play = await started.current;
     const saveLocal = () =>
-      saveLocalRecord({
-        id: crypto.randomUUID(),
+      recordLocalPlay({
         date: play?.date ?? today,
         gameId: game.gameId,
         rawResult: result,
         score,
         playToken: play?.playToken ?? null,
-        finishedAt: new Date().toISOString(),
+        playedAt: new Date().toISOString(),
       });
 
     if (!signedIn) {

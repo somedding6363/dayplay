@@ -44,6 +44,20 @@ test("비로그인 기록은 내 최고 기록에 바로 보이고 새로고침�
   await expect(myBest).toContainText("이 기기");
 });
 
+test("비로그인으로 여러 번 하면 그날 그 게임의 한 기록에 횟수가 쌓인다", async ({ page }) => {
+  for (let i = 0; i < 2; i += 1) {
+    await (i === 0 ? startBoard(page) : resultBoard(page)).click();
+    await waitingBoard(page).click();
+    await expect(resultBoard(page)).toBeVisible();
+  }
+
+  const records = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("dayplay:records:v2") ?? "[]"),
+  );
+  expect(records).toHaveLength(1);
+  expect(records[0]).toMatchObject({ gameId: "reaction-time", attempts: 2 });
+});
+
 test("신호 전에 누르면 무효 결과 -로 끝난다", async ({ page }) => {
   await startBoard(page).click();
   await waitingBoard(page).click();

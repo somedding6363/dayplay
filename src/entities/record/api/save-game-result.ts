@@ -33,6 +33,8 @@ interface SaveOptions {
   now?: Date;
   // 기본값은 PLAY_TOKEN_MAX_AGE_MS. 로그인 직후 임시 기록 병합에서만 늘린다.
   maxTokenAgeMs?: number;
+  // 더할 시도 횟수. 로그인 직후 병합은 브라우저에서 센 횟수를 한 번에 더한다.
+  attempts?: number;
 }
 
 // 모든 게임이 같이 쓰는 저장 흐름. 게임마다 다른 검증과 점수 변환만 rules가 맡는다.
@@ -41,7 +43,7 @@ interface SaveOptions {
 export async function saveGameResult<TResult>(
   { userId, playToken, result }: SaveInput,
   rules: Pick<GameRules<TResult>, "id" | "version" | "parseResult" | "toScore" | "durationMs">,
-  { now = new Date(), maxTokenAgeMs }: SaveOptions = {},
+  { now = new Date(), maxTokenAgeMs, attempts = 1 }: SaveOptions = {},
 ): Promise<SaveGameResult<TResult>> {
   const play = await readPlayToken(playToken, playTokenSecret(), now.getTime(), maxTokenAgeMs);
   if (!play) {
@@ -64,7 +66,7 @@ export async function saveGameResult<TResult>(
   }
 
   // 첫 play는 무효여도 내 기록이 된다. 이후에는 점수가 있는 결과가 무효(null)를, 높은 점수가 낮은 점수를 이긴다.
-  // 시도 횟수는 결과와 상관없이 늘린다. 한 문장이라 여러 탭이 동시에 저장해도 좋은 쪽이 남고 횟수도 빠지지 않는다.
+  // 시도 횟수는 결과와 상관없이 더한다. 한 문장이라 여러 탭이 동시에 저장해도 좋은 쪽이 남고 횟수도 빠지지 않는다.
   const better = sql`excluded.score is not null and (${gameResults.score} is null or excluded.score > ${gameResults.score})`;
   const keepBetter = (column: AnyColumn, excluded: string) =>
     sql`case when ${better} then ${sql.raw(`excluded.${excluded}`)} else ${column} end`;
@@ -79,6 +81,7 @@ export async function saveGameResult<TResult>(
       score,
       playId: play.playId,
       achievedAt: now,
+      attempts,
     })
     .onConflictDoUpdate({
       target: [gameResults.userId, gameResults.date, gameResults.gameId],
@@ -88,7 +91,7 @@ export async function saveGameResult<TResult>(
         score: keepBetter(gameResults.score, "score"),
         playId: keepBetter(gameResults.playId, "play_id"),
         achievedAt: keepBetter(gameResults.achievedAt, "achieved_at"),
-        attempts: sql`${gameResults.attempts} + 1`,
+        attempts: sql`${gameResults.attempts} + excluded.attempts`,
       },
     })
     .returning({
