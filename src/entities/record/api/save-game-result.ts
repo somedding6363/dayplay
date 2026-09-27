@@ -72,48 +72,52 @@ export async function saveGameResult<TResult>(
 
   // 첫 play는 무효여도 내 기록이 된다. 이후에는 점수가 있는 결과가 무효(null)를, 높은 점수가 낮은 점수를 이긴다.
   // 여러 탭이 동시에 저장해도 한 문장이라 좋은 쪽이 남는다.
-  await db
-    .insert(gameResults)
-    .values({
-      userId,
-      date: play.date,
-      gameId: play.gameId,
-      gameVersion: rules.version,
-      rawResult: parsed,
-      score,
-      playId: play.playId,
-      achievedAt: now,
-    })
-    .onConflictDoUpdate({
-      target: [gameResults.userId, gameResults.date, gameResults.gameId],
-      set: {
-        gameVersion: sql`excluded.game_version`,
-        rawResult: sql`excluded.raw_result`,
-        score: sql`excluded.score`,
-        playId: sql`excluded.play_id`,
-        achievedAt: sql`excluded.achieved_at`,
-      },
-      setWhere: sql`excluded.score is not null and (${gameResults.score} is null or excluded.score > ${gameResults.score})`,
-    });
-
-  const [best] = await db
-    .select({
-      rawResult: gameResults.rawResult,
-      score: gameResults.score,
-      playId: gameResults.playId,
-    })
-    .from(gameResults)
-    .where(
-      and(
-        eq(gameResults.userId, userId),
-        eq(gameResults.date, play.date),
-        eq(gameResults.gameId, play.gameId),
+  // 갱신과 두 조회는 서로 기다릴 필요가 없어 한 번의 요청(batch)으로 보낸다. batch 안에서는 순서대로 실행된다.
+  const [, [best], [{ attempts }]] = await db.batch([
+    db
+      .insert(gameResults)
+      .values({
+        userId,
+        date: play.date,
+        gameId: play.gameId,
+        gameVersion: rules.version,
+        rawResult: parsed,
+        score,
+        playId: play.playId,
+        achievedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: [gameResults.userId, gameResults.date, gameResults.gameId],
+        set: {
+          gameVersion: sql`excluded.game_version`,
+          rawResult: sql`excluded.raw_result`,
+          score: sql`excluded.score`,
+          playId: sql`excluded.play_id`,
+          achievedAt: sql`excluded.achieved_at`,
+        },
+        setWhere: sql`excluded.score is not null and (${gameResults.score} is null or excluded.score > ${gameResults.score})`,
+      }),
+    db
+      .select({
+        rawResult: gameResults.rawResult,
+        score: gameResults.score,
+        playId: gameResults.playId,
+      })
+      .from(gameResults)
+      .where(
+        and(
+          eq(gameResults.userId, userId),
+          eq(gameResults.date, play.date),
+          eq(gameResults.gameId, play.gameId),
+        ),
       ),
-    );
-  const [{ attempts }] = await db
-    .select({ attempts: count() })
-    .from(plays)
-    .where(and(eq(plays.userId, userId), eq(plays.date, play.date), eq(plays.gameId, play.gameId)));
+    db
+      .select({ attempts: count() })
+      .from(plays)
+      .where(
+        and(eq(plays.userId, userId), eq(plays.date, play.date), eq(plays.gameId, play.gameId)),
+      ),
+  ]);
   if (!best) {
     throw new Error("저장한 내 기록을 읽지 못했어요.");
   }
