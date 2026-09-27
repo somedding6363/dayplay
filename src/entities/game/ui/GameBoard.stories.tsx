@@ -63,3 +63,16 @@ export const Narrow: Story = {
     ),
   ],
 };
+
+// 반응해야 하는 순간. 판 전체가 게임 색으로 바뀐다.
+export const Signal: Story = {
+  args: { tone: "signal", label: "지금!", description: "누르세요." },
+};
+
+export const Result: Story = {
+  args: { label: "187ms", description: "다시 하려면 누르세요." },
+};
+
+export const InvalidResult: Story = {
+  args: { label: "-", description: "다시 하려면 누르세요." },
+};
