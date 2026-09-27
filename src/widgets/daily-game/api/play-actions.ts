@@ -44,7 +44,7 @@ const MERGE_MAX_RECORDS = 20;
 // 브라우저가 센 횟수라 서버가 확인할 수 없다. 틀어져도 시도 횟수만 바뀌므로 범위만 제한한다.
 const MERGE_MAX_ATTEMPTS = 1000;
 
-export type FinishPlayResult = SaveGameResult | { status: "signed-out" };
+type FinishPlayResult = SaveGameResult | { status: "signed-out" };
 
 export interface StartedPlay {
   playToken: string;

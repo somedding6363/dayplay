@@ -7,7 +7,6 @@ const startBoard = (page: Page) => board(page, /^반응속도 시작/);
 const waitingBoard = (page: Page) => board(page, /^기다리세요/);
 const signalBoard = (page: Page) => board(page, /^지금 누르세요/);
 const resultBoard = (page: Page) => board(page, /^결과 /);
-const status = (page: Page) => section(page).getByRole("status");
 
 // 자동화 입력은 신호 프레임이 그려지기 전에 누르면 신호 전 입력(무효)이 될 수 있다.
 const humanDelay = (page: Page) => page.waitForTimeout(200);
@@ -25,7 +24,6 @@ test("시작하면 기다리고, 신호 후 누르면 ms 결과가 나온다", a
   await signalBoard(page).click();
 
   await expect(resultBoard(page)).toHaveAccessibleName(/^결과 \d+ms\./);
-  await expect(status(page)).toHaveText("이 기기에 저장했어요. 로그인하면 계정에 저장돼요.");
   await expect(section(page).getByRole("button", { name: "로그인하고 기록 저장" })).toBeVisible();
 });
 

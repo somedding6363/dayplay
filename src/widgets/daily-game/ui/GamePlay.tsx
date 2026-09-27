@@ -7,7 +7,6 @@ import { SignInButton } from "@/features/auth";
 import { finishPlay, startPlay, type StartedPlay } from "../api/play-actions";
 import type { BestResult } from "../model/best";
 import type { PlayableGame } from "../model/games";
-import { saveMessage, type SaveState } from "../model/save-message";
 
 type Phase = "ready" | "playing" | "finished";
 
@@ -27,7 +26,8 @@ interface GamePlayProps {
 export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
   const [phase, setPhase] = useState<Phase>("ready");
   const [resultText, setResultText] = useState("");
-  const [save, setSave] = useState<SaveState | null>(null);
+  // 로그인하지 않아 이 브라우저에 저장했으면 로그인 버튼을 보여준다.
+  const [savedLocally, setSavedLocally] = useState(false);
   const boardRef = useRef<HTMLButtonElement>(null);
   const started = useRef<Promise<StartedPlay | null>>(Promise.resolve(null));
   // play를 다시 시작하면 이전 play의 저장 응답은 버린다.
@@ -46,7 +46,7 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
     pressedHere.current = false;
     playNumber.current += 1;
     started.current = startPlay(game.gameId).catch(() => null);
-    setSave(null);
+    setSavedLocally(false);
     setPhase("playing");
   };
 
@@ -73,26 +73,22 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
     if (!signedIn) {
       saveLocal();
       if (current === playNumber.current) {
-        setSave({ status: "local" });
+        setSavedLocally(true);
       }
       return;
     }
 
-    setSave({ status: "saving" });
     const saved = play
       ? await finishPlay(game.gameId, play.playToken, result).catch(() => null)
       : null;
-    let next: SaveState;
     if (saved?.status === "saved") {
-      next = saved;
-    } else {
-      // 세션 만료, 토큰 발급 실패, 토큰 거부, 네트워크 오류로 저장하지 못하면 결과를 잃지 않도록 브라우저에 남긴다.
-      // 오늘 다시 들어오면 로그인 직후 병합으로 다시 저장한다. 토큰이 없거나 날짜가 지나면 이 기기에만 남는다.
-      saveLocal();
-      next = saved?.status === "signed-out" ? { status: "local" } : { status: "retry-later" };
+      return;
     }
-    if (current === playNumber.current) {
-      setSave(next);
+    // 세션 만료, 토큰 발급 실패, 토큰 거부, 네트워크 오류로 저장하지 못하면 결과를 잃지 않도록 브라우저에 남긴다.
+    // 오늘 다시 들어오면 로그인 직후 병합으로 다시 저장한다. 토큰이 없거나 날짜가 지나면 이 기기에만 남는다.
+    saveLocal();
+    if (saved?.status === "signed-out" && current === playNumber.current) {
+      setSavedLocally(true);
     }
   };
 
@@ -123,12 +119,11 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
           }
         }}
       />
-      <div className="flex min-h-9 flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <p role="status" className="text-caption text-muted">
-          {save ? saveMessage(save, game.formatValue) : null}
-        </p>
-        {save?.status === "local" ? <SignInButton label="로그인하고 기록 저장" size="sm" /> : null}
-      </div>
+      {savedLocally ? (
+        <div className="flex justify-end">
+          <SignInButton label="로그인하고 기록 저장" size="sm" />
+        </div>
+      ) : null}
     </div>
   );
 }
