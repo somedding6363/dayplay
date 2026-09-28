@@ -83,7 +83,8 @@ export function TenSecondsGame({ onFinish }: GameProps<TenSecondsResult>) {
       ref={boardRef}
       label={hidden ? "?.???초" : `${formatSeconds(shownMs)}초`}
       description={hidden ? "10초라고 생각할 때 누르세요." : "시간이 흐르고 있어요."}
-      inputs={["click", "touch", "space"]}
+      keyHint="Space"
+      aria-keyshortcuts="Space"
       // 흐르는 숫자는 읽지 않는다. 시간이 가려진 뒤에만 이름이 바뀐다.
       aria-label={
         hidden ? "시간을 가렸어요. 10초라고 생각할 때 누르세요." : "시간이 흐르고 있어요."

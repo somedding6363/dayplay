@@ -37,7 +37,8 @@ test("계단 방향이 같으면 오르기, 꺾이면 방향 전환을 눌러 �
 }) => {
   await startButton(page).click();
   await expect(gauge(page)).toBeVisible();
-  await expect(section(page)).toContainText("스페이스바로 방향 전환, ↑로 오르기");
+  await expect(turnButton(page)).toHaveAttribute("aria-keyshortcuts", "Space");
+  await expect(climbButton(page)).toHaveAttribute("aria-keyshortcuts", "ArrowUp");
 
   // 캐릭터는 오른쪽을 보고 시작한다.
   let facing = 1;

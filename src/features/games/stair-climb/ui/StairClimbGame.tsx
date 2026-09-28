@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 
 import { gameSurfaceBaseClass, type GameProps } from "@/entities/game";
 import { cx } from "@/shared/lib";
 import { Button } from "@/shared/ui/button";
+import { Kbd } from "@/shared/ui/kbd";
 import { GAUGE_MAX_MS, STEP_BONUS_MS, drainRate, type StairClimbResult } from "../model/rules";
 import { extendStairs, facingAfter, type Direction, type StairAction } from "../model/stairs";
 
@@ -169,7 +170,7 @@ export function StairClimbGame({ onFinish }: GameProps<StairClimbResult>) {
     .filter(({ dy }) => dy >= -BELOW && dy <= ABOVE);
 
   return (
-    <div className={cx(gameSurfaceBaseClass, "aspect-square sm:aspect-board")}>
+    <div className={cx(gameSurfaceBaseClass, "aspect-square overflow-hidden sm:aspect-board")}>
       <div className="relative flex size-full flex-col gap-3 p-4 @md:p-6">
         <div className="flex items-center gap-4">
           <span className="text-caption-strong tabular-nums">{position}계단</span>
@@ -214,23 +215,24 @@ export function StairClimbGame({ onFinish }: GameProps<StairClimbResult>) {
           </span>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <p className="text-center text-caption text-muted">
-            키보드는 스페이스바로 방향 전환, ↑로 오르기
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              size="lg"
-              variant="soft"
-              className="touch-manipulation"
-              {...controlProps("turn")}
-            >
-              방향 전환
-            </Button>
-            <Button size="lg" className="touch-manipulation" {...controlProps("climb")}>
-              오르기
-            </Button>
-          </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Button
+            size="lg"
+            variant="soft"
+            className="touch-manipulation"
+            aria-keyshortcuts="Space"
+            {...controlProps("turn")}
+          >
+            방향 전환 <Kbd>Space</Kbd>
+          </Button>
+          <Button
+            size="lg"
+            className="touch-manipulation"
+            aria-keyshortcuts="ArrowUp"
+            {...controlProps("climb")}
+          >
+            오르기 <Kbd>↑</Kbd>
+          </Button>
         </div>
       </div>
     </div>

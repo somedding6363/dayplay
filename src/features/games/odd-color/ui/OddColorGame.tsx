@@ -113,7 +113,7 @@ export function OddColorGame({ onFinish }: GameProps<OddColorResult>) {
   return (
     // 격자는 정사각형이라 가로로 긴 판에서는 높이에 맞춰 작아진다. 폰처럼 좁은 화면에서는 판을 정사각형으로 키워
     // 격자가 판 폭을 다 쓰게 한다.
-    <div className={cx(gameSurfaceBaseClass, "aspect-square sm:aspect-board")}>
+    <div className={cx(gameSurfaceBaseClass, "aspect-square overflow-hidden sm:aspect-board")}>
       <div className="relative flex size-full flex-col gap-3 p-4 @md:p-6">
         <div className="flex items-baseline justify-between text-caption-strong tabular-nums">
           <span>{level - 1}개 찾음</span>

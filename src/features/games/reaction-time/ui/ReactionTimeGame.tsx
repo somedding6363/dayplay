@@ -94,7 +94,8 @@ export function ReactionTimeGame({ onFinish }: GameProps<ReactionTimeResult>) {
       tone={signal ? "signal" : "soft"}
       label={signal ? "지금!" : "기다리세요"}
       description={signal ? "누르세요." : "색이 바뀌면 누르세요."}
-      inputs={["click", "touch", "space"]}
+      keyHint="Space"
+      aria-keyshortcuts="Space"
       aria-label={signal ? "지금 누르세요" : "기다리세요. 색이 바뀌면 누르세요."}
       onPointerDown={onPointerDown}
       onKeyDown={onKeyDown}

@@ -26,7 +26,7 @@ const meta = {
   args: {
     label: "시작",
     description: "색이 바뀌면 누르세요.",
-    inputs: ["click", "touch", "space"],
+    keyHint: "Space",
   },
   decorators: [
     (Story, context) => (
@@ -50,8 +50,8 @@ export const Blue: Story = {
   args: { description: "정확히 10초에 멈추세요." },
 };
 
-export const WithoutInputs: Story = {
-  args: { inputs: undefined },
+export const WithoutKeyHint: Story = {
+  args: { keyHint: undefined },
 };
 
 // 최소 폭(280px)에서도 라벨과 안내가 잘리지 않는지 본다.

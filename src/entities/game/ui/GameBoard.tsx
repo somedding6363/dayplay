@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cx } from "@/shared/lib";
+import { Kbd } from "@/shared/ui/kbd";
 
 type GameBoardTone = "soft" | "signal";
 
@@ -10,25 +11,25 @@ const toneClass: Record<GameBoardTone, { board: string; ring: string; input: str
 };
 
 const surfaceBaseClass =
-  "@container relative block min-h-64 w-full overflow-hidden rounded-md text-left select-none";
-const surfaceClass = cx(surfaceBaseClass, "aspect-board");
+  "@container relative block min-h-64 w-full rounded-md text-left select-none";
+const surfaceClass = cx(surfaceBaseClass, "aspect-board overflow-hidden");
 
 // 게임 판과 같은 모양의 표면. 판 전체가 버튼이 아닌 게임(격자 등)이 쓴다.
-// 비율은 게임이 정한다. 기본 판은 aspect-board다.
+// 비율과 넘침(overflow)은 게임이 정한다. 기본 판은 aspect-board이고 넘치는 부분을 자른다.
 export const gameSurfaceBaseClass = cx(surfaceBaseClass, toneClass.soft.board);
 
 interface BoardFaceProps {
   label: ReactNode;
   description?: ReactNode;
   tone: GameBoardTone;
-  // 오른쪽 아래의 입력 안내(CLICK, TOUCH, SPACE)
-  inputs?: string[];
+  // 오른쪽 아래의 키보드 단축키 안내. 예: "Space"
+  keyHint?: string;
   // 라벨 아래의 행동. 예: 시작 버튼
   action?: ReactNode;
 }
 
 // 게임 판과 게임 패널이 함께 쓰는 장식과 글자 배치.
-function BoardFace({ label, description, tone, inputs, action }: BoardFaceProps) {
+function BoardFace({ label, description, tone, keyHint, action }: BoardFaceProps) {
   return (
     <>
       <span
@@ -39,7 +40,7 @@ function BoardFace({ label, description, tone, inputs, action }: BoardFaceProps)
       </span>
 
       {/* 화면 폭이 아니라 판 자체의 폭에 맞춰 크기를 바꾼다.
-          가장 긴 라벨("기다리세요", "10000ms", "20.000초")과 입력 표시가 한 줄에 들어가는 폭에서만 글자를 키운다. */}
+          가장 긴 라벨("기다리세요", "10000ms", "20.000초")과 단축키 안내가 한 줄에 들어가는 폭에서만 글자를 키운다. */}
       <span className="relative flex size-full items-end justify-between gap-6 p-4 @md:p-6">
         <span className="relative flex flex-col gap-3">
           <span className="text-display-md break-keep @md:text-display-lg @xl:text-hero-display">
@@ -49,17 +50,9 @@ function BoardFace({ label, description, tone, inputs, action }: BoardFaceProps)
           {action ? <span className="mt-3 flex">{action}</span> : null}
         </span>
 
-        {inputs ? (
-          <span
-            aria-hidden="true"
-            className={cx(
-              "relative hidden flex-col gap-1 text-caption tracking-widest uppercase @xs:flex",
-              toneClass[tone].input,
-            )}
-          >
-            {inputs.map((input) => (
-              <span key={input}>{input}</span>
-            ))}
+        {keyHint ? (
+          <span className={cx("relative hidden @xs:flex", toneClass[tone].input)}>
+            <Kbd>{keyHint}</Kbd>
           </span>
         ) : null}
       </span>
@@ -70,7 +63,7 @@ function BoardFace({ label, description, tone, inputs, action }: BoardFaceProps)
 interface GameBoardProps extends ComponentProps<"button"> {
   label: ReactNode;
   description?: ReactNode;
-  inputs?: string[];
+  keyHint?: string;
   // signal은 반응해야 하는 순간이다. 판 전체를 게임 색으로 바꾼다.
   tone?: GameBoardTone;
 }
@@ -79,7 +72,7 @@ interface GameBoardProps extends ComponentProps<"button"> {
 export function GameBoard({
   label,
   description,
-  inputs,
+  keyHint,
   tone = "soft",
   className,
   ...props
@@ -90,7 +83,7 @@ export function GameBoard({
       className={cx(surfaceClass, "touch-manipulation", toneClass[tone].board, className)}
       {...props}
     >
-      <BoardFace label={label} description={description} inputs={inputs} tone={tone} />
+      <BoardFace label={label} description={description} keyHint={keyHint} tone={tone} />
     </button>
   );
 }
@@ -105,7 +98,7 @@ interface GamePanelProps extends ComponentProps<"div"> {
 // 보여주기만 하는 게임 판. 시작 전과 결과처럼 판을 눌러 실수로 시작하면 안 되는 상태에 쓴다.
 export function GamePanel({ label, description, action, className, ...props }: GamePanelProps) {
   return (
-    <div className={cx(gameSurfaceBaseClass, "aspect-board", className)} {...props}>
+    <div className={cx(gameSurfaceBaseClass, "aspect-board overflow-hidden", className)} {...props}>
       <BoardFace label={label} description={description} action={action} tone="soft" />
     </div>
   );
