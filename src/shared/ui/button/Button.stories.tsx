@@ -7,7 +7,7 @@ const meta = {
   args: { children: "로그인" },
   argTypes: {
     variant: { control: "inline-radio", options: ["primary", "soft", "ghost"] },
-    size: { control: "inline-radio", options: ["sm", "md", "icon"] },
+    size: { control: "inline-radio", options: ["sm", "md", "lg", "icon"] },
     shape: { control: "inline-radio", options: ["pill", "rounded"] },
   },
 } satisfies Meta<typeof Button>;
@@ -24,7 +24,7 @@ export const All: Story = {
         <div key={variant} className="flex flex-wrap items-center gap-4">
           <span className="w-16 text-caption text-muted">{variant}</span>
           {(["pill", "rounded"] as const).map((shape) =>
-            (["sm", "md"] as const).map((size) => (
+            (["sm", "md", "lg"] as const).map((size) => (
               <Button
                 key={`${shape}-${size}`}
                 {...args}

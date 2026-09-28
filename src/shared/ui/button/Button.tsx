@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 import { cx } from "@/shared/lib";
 
 type ButtonVariant = "primary" | "soft" | "ghost";
-type ButtonSize = "sm" | "md" | "icon";
+type ButtonSize = "sm" | "md" | "lg" | "icon";
 type ButtonAlign = "center" | "start";
 type ButtonShape = "pill" | "rounded";
 
@@ -28,6 +28,8 @@ const shapeClass: Record<ButtonShape, string> = {
 const sizeClass: Record<ButtonSize, string> = {
   sm: "h-9 px-4",
   md: "h-11 px-4",
+  // 게임 조작처럼 빠르게 연달아 누르는 큰 터치 영역
+  lg: "h-14 px-6",
   icon: "size-10",
 };
 
