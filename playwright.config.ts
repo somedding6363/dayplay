@@ -12,6 +12,7 @@ const servers = [
   { name: "ten-seconds", port: 3101, date: "2026-09-22", testMatch: /ten-seconds\.spec\.ts/ },
   { name: "odd-color", port: 3102, date: "2026-09-23", testMatch: /odd-color\.spec\.ts/ },
   { name: "stair-climb", port: 3103, date: "2026-09-24", testMatch: /stair-climb\.spec\.ts/ },
+  { name: "coin-flip", port: 3104, date: "2026-09-25", testMatch: /coin-flip\.spec\.ts/ },
 ];
 
 export default defineConfig({
