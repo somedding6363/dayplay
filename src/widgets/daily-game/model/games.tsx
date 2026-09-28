@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { Better, GameDefinition, GameRules } from "@/entities/game";
 import { oddColor } from "@/features/games/odd-color";
 import { reactionTime } from "@/features/games/reaction-time";
+import { stairClimb } from "@/features/games/stair-climb";
 import { tenSeconds } from "@/features/games/ten-seconds";
 import type { TodayGame } from "./types";
 
@@ -43,8 +44,10 @@ function toPlayable<TResult>(game: GameDefinition<TResult>): PlayableGame {
 }
 
 export const playableGames = new Map(
-  [toPlayable(reactionTime), toPlayable(tenSeconds), toPlayable(oddColor)].map((game) => [
-    game.gameId,
-    game,
-  ]),
+  [
+    toPlayable(reactionTime),
+    toPlayable(tenSeconds),
+    toPlayable(oddColor),
+    toPlayable(stairClimb),
+  ].map((game) => [game.gameId, game]),
 );

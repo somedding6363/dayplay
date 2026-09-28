@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// 2026-09-28(DAYPLAY_TODAY)은 10초 맞추기가 열린다. 결과 숫자는 검사하지 않고 흐름만 본다.
+// 2026-09-22(DAYPLAY_TODAY)은 10초 맞추기가 열린다. 결과 숫자는 검사하지 않고 흐름만 본다.
 const section = (page: Page) => page.getByRole("region", { name: "오늘의 게임" });
 const board = (page: Page, name: RegExp) => section(page).getByRole("button", { name });
 const runningBoard = (page: Page) => board(page, /^시간이 흐르고 있어요/);

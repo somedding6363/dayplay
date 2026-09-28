@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// 2026-09-28(DAYPLAY_TODAY)은 반응속도가 첫 탭이다. 결과 숫자는 검사하지 않고 흐름만 본다.
+// 2026-09-21(DAYPLAY_TODAY)은 반응속도가 열린다. 결과 숫자는 검사하지 않고 흐름만 본다.
 const section = (page: Page) => page.getByRole("region", { name: "오늘의 게임" });
 const board = (page: Page, name: RegExp) => section(page).getByRole("button", { name });
 const waitingBoard = (page: Page) => board(page, /^기다리세요/);

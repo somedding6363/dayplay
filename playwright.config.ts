@@ -6,11 +6,12 @@ const servers = [
   {
     name: "reaction-time",
     port: 3100,
-    date: "2026-09-27",
+    date: "2026-09-21",
     testMatch: /(home|account|reaction-time)\.spec\.ts/,
   },
-  { name: "ten-seconds", port: 3101, date: "2026-09-28", testMatch: /ten-seconds\.spec\.ts/ },
+  { name: "ten-seconds", port: 3101, date: "2026-09-22", testMatch: /ten-seconds\.spec\.ts/ },
   { name: "odd-color", port: 3102, date: "2026-09-23", testMatch: /odd-color\.spec\.ts/ },
+  { name: "stair-climb", port: 3103, date: "2026-09-24", testMatch: /stair-climb\.spec\.ts/ },
 ];
 
 export default defineConfig({
