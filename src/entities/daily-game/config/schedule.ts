@@ -4,6 +4,9 @@ import type { Schedule } from "../model/types";
 export const dailySchedule: Schedule = {
   week: [],
   cycle: [
-    { from: "2026-09-21", games: ["reaction-time", "ten-seconds", "odd-color", "stair-climb"] },
+    {
+      from: "2026-09-21",
+      games: ["reaction-time", "ten-seconds", "odd-color", "stair-climb", "coin-flip"],
+    },
   ],
 };

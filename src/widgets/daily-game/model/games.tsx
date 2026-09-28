@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { Better, GameDefinition, GameRules } from "@/entities/game";
+import { coinFlip } from "@/features/games/coin-flip";
 import { oddColor } from "@/features/games/odd-color";
 import { reactionTime } from "@/features/games/reaction-time";
 import { stairClimb } from "@/features/games/stair-climb";
@@ -49,5 +50,6 @@ export const playableGames = new Map(
     toPlayable(tenSeconds),
     toPlayable(oddColor),
     toPlayable(stairClimb),
+    toPlayable(coinFlip),
   ].map((game) => [game.gameId, game]),
 );

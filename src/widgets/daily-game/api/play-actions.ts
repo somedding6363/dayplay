@@ -8,6 +8,7 @@ import {
   type SaveGameResult,
 } from "@/entities/record/server";
 import { auth } from "@/features/auth/server";
+import { coinFlip } from "@/features/games/coin-flip";
 import { oddColor } from "@/features/games/odd-color";
 import { reactionTime } from "@/features/games/reaction-time";
 import { stairClimb } from "@/features/games/stair-climb";
@@ -60,6 +61,13 @@ const savers = new Map<string, GameSaver>([
     {
       save: (input) => saveGameResult(input, stairClimb),
       merge: (input) => mergeGameValue(input, stairClimb),
+    },
+  ],
+  [
+    coinFlip.id,
+    {
+      save: (input) => saveGameResult(input, coinFlip),
+      merge: (input) => mergeGameValue(input, coinFlip),
     },
   ],
 ]);
