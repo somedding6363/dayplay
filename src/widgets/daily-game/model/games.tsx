@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { Better, GameDefinition, GameRules } from "@/entities/game";
 import { coinFlip } from "@/features/games/coin-flip";
+import { fakeLetter } from "@/features/games/fake-letter";
 import { oddColor } from "@/features/games/odd-color";
 import { paperPlane } from "@/features/games/paper-plane";
 import { poopDodge } from "@/features/games/poop-dodge";
@@ -57,5 +58,6 @@ export const playableGames = new Map(
     toPlayable(racing),
     toPlayable(poopDodge),
     toPlayable(paperPlane),
+    toPlayable(fakeLetter),
   ].map((game) => [game.gameId, game]),
 );
