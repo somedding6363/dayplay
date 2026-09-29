@@ -26,18 +26,28 @@ interface BoardFaceProps {
   keyHint?: string;
   // 라벨 아래의 행동. 예: 시작 버튼
   action?: ReactNode;
+  // 판 전체에 까는 그림(게임 썸네일). 없으면 원 두 개를 겹친 기본 장식을 쓴다.
+  art?: ReactNode;
 }
 
 // 게임 판과 게임 패널이 함께 쓰는 장식과 글자 배치.
-function BoardFace({ label, description, tone, keyHint, action }: BoardFaceProps) {
+function BoardFace({ label, description, tone, keyHint, action, art }: BoardFaceProps) {
   return (
     <>
-      <span
-        aria-hidden="true"
-        className="absolute -top-24 -right-24 flex size-96 items-start justify-end rounded-full bg-game-mid/40"
-      >
-        <span className={cx("size-72 rounded-full", toneClass[tone].ring)} />
-      </span>
+      {art ? (
+        <span aria-hidden="true" className="absolute inset-0">
+          {art}
+          {/* 글자가 있는 왼쪽 아래를 판 바탕색으로 옅게 덮어 그림 위에서도 글자가 읽히게 한다. */}
+          <span className="absolute inset-0 bg-linear-to-tr from-game-soft from-25% via-game-soft/60 via-50% to-transparent to-75%" />
+        </span>
+      ) : (
+        <span
+          aria-hidden="true"
+          className="absolute -top-24 -right-24 flex size-96 items-start justify-end rounded-full bg-game-mid/40"
+        >
+          <span className={cx("size-72 rounded-full", toneClass[tone].ring)} />
+        </span>
+      )}
 
       {/* 화면 폭이 아니라 판 자체의 폭에 맞춰 크기를 바꾼다.
           가장 긴 라벨("기다리세요", "10000ms", "20.000초")과 단축키 안내가 한 줄에 들어가는 폭에서만 글자를 키운다. */}
@@ -93,13 +103,22 @@ interface GamePanelProps extends ComponentProps<"div"> {
   description?: ReactNode;
   // 판 아래쪽의 행동. 판 자체는 눌러도 아무 일이 없다.
   action?: ReactNode;
+  // 판 전체에 까는 그림(게임 썸네일)
+  art?: ReactNode;
 }
 
 // 보여주기만 하는 게임 판. 시작 전과 결과처럼 판을 눌러 실수로 시작하면 안 되는 상태에 쓴다.
-export function GamePanel({ label, description, action, className, ...props }: GamePanelProps) {
+export function GamePanel({
+  label,
+  description,
+  action,
+  art,
+  className,
+  ...props
+}: GamePanelProps) {
   return (
     <div className={cx(gameSurfaceBaseClass, "aspect-board overflow-hidden", className)} {...props}>
-      <BoardFace label={label} description={description} action={action} tone="soft" />
+      <BoardFace label={label} description={description} action={action} art={art} tone="soft" />
     </div>
   );
 }

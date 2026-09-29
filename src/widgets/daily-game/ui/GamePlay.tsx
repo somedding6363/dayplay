@@ -110,6 +110,7 @@ export function GamePlay({ game, signedIn, today, onRecord }: GamePlayProps) {
         aria-live="polite"
         label={finished ? resultText : game.name}
         description={finished ? undefined : game.instruction}
+        art={<game.Thumbnail />}
         action={
           <Button type="button" onClick={start}>
             {finished ? "다시 하기" : "시작"}
