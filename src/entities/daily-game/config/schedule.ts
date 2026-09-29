@@ -14,6 +14,7 @@ export const dailySchedule: Schedule = {
         "coin-flip",
         "racing",
         "poop-dodge",
+        "paper-plane",
       ],
     },
   ],
