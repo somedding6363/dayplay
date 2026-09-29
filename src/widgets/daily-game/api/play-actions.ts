@@ -10,6 +10,7 @@ import {
 import { auth } from "@/features/auth/server";
 import { coinFlip } from "@/features/games/coin-flip";
 import { oddColor } from "@/features/games/odd-color";
+import { racing } from "@/features/games/racing";
 import { reactionTime } from "@/features/games/reaction-time";
 import { stairClimb } from "@/features/games/stair-climb";
 import { tenSeconds } from "@/features/games/ten-seconds";
@@ -68,6 +69,13 @@ const savers = new Map<string, GameSaver>([
     {
       save: (input) => saveGameResult(input, coinFlip),
       merge: (input) => mergeGameValue(input, coinFlip),
+    },
+  ],
+  [
+    racing.id,
+    {
+      save: (input) => saveGameResult(input, racing),
+      merge: (input) => mergeGameValue(input, racing),
     },
   ],
 ]);
