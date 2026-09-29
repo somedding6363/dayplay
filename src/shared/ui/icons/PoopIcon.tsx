@@ -4,7 +4,7 @@ interface PoopIconProps extends SVGProps<SVGSVGElement> {
   size?: number;
 }
 
-// 세 층으로 쌓인 똥. 몸은 currentColor이고 음영·광택·눈은 흰색·검은색을 투명하게 겹쳐 만든다.
+// 세 층으로 쌓인 똥. 몸은 currentColor이고 광택·눈은 흰색·검은색을 투명하게 겹쳐 만든다.
 export function PoopIcon({ size = 48, "aria-hidden": ariaHidden = true, ...props }: PoopIconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden={ariaHidden} {...props}>
@@ -13,12 +13,6 @@ export function PoopIcon({ size = 48, "aria-hidden": ariaHidden = true, ...props
         <rect x="14" y="9" width="20" height="12" rx="6" />
         <rect x="8.5" y="18.5" width="31" height="13" rx="6.5" />
         <rect x="3.5" y="29" width="41" height="15" rx="7.5" />
-      </g>
-      {/* 층 아래쪽 그림자 */}
-      <g fill="black" fillOpacity="0.16">
-        <rect x="14" y="17" width="20" height="4" rx="2" />
-        <rect x="8.5" y="27.5" width="31" height="4" rx="2" />
-        <rect x="3.5" y="39.5" width="41" height="4.5" rx="2.25" />
       </g>
       {/* 광택 */}
       <g fill="white" fillOpacity="0.4">
