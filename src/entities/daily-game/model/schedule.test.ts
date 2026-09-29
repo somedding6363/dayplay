@@ -36,7 +36,7 @@ describe("dailySchedule", () => {
   });
 
   // 공개된 날짜의 결과가 바뀌면 이 테스트가 깨진다. 공개 후에는 기대값을 고치지 말고 일정 변경을 되돌린다.
-  // 공개 전(서비스 시작일 미정)이라 2026-09-28에 cycle을 반응속도 → 10초 맞추기 → 다른 색상 찾기 → 무한 계단 오르기 → 동전 앞뒤 맞추기 → 레이싱으로 다시 정했다.
+  // 공개 전(서비스 시작일 미정)이라 2026-09-28에 cycle을 반응속도 → 10초 맞추기 → 다른 색상 찾기 → 무한 계단 오르기 → 동전 앞뒤 맞추기 → 레이싱 → 똥피하기로 다시 정했다.
   it("이미 정한 날짜의 게임은 바뀌지 않는다", () => {
     const expected: Record<string, string> = {
       "2026-09-21": "reaction-time",
@@ -45,8 +45,8 @@ describe("dailySchedule", () => {
       "2026-09-24": "stair-climb",
       "2026-09-25": "coin-flip",
       "2026-09-26": "racing",
-      "2026-09-27": "reaction-time",
-      "2026-09-28": "ten-seconds",
+      "2026-09-27": "poop-dodge",
+      "2026-09-28": "reaction-time",
     };
     for (const [day, gameId] of Object.entries(expected)) {
       expect(getDailyGames(dailySchedule, day), day).toEqual([{ gameId, kind: "cycle" }]);

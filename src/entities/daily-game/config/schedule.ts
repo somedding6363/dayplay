@@ -6,7 +6,15 @@ export const dailySchedule: Schedule = {
   cycle: [
     {
       from: "2026-09-21",
-      games: ["reaction-time", "ten-seconds", "odd-color", "stair-climb", "coin-flip", "racing"],
+      games: [
+        "reaction-time",
+        "ten-seconds",
+        "odd-color",
+        "stair-climb",
+        "coin-flip",
+        "racing",
+        "poop-dodge",
+      ],
     },
   ],
 };

@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { Better, GameDefinition, GameRules } from "@/entities/game";
 import { coinFlip } from "@/features/games/coin-flip";
 import { oddColor } from "@/features/games/odd-color";
+import { poopDodge } from "@/features/games/poop-dodge";
 import { racing } from "@/features/games/racing";
 import { reactionTime } from "@/features/games/reaction-time";
 import { stairClimb } from "@/features/games/stair-climb";
@@ -53,5 +54,6 @@ export const playableGames = new Map(
     toPlayable(stairClimb),
     toPlayable(coinFlip),
     toPlayable(racing),
+    toPlayable(poopDodge),
   ].map((game) => [game.gameId, game]),
 );
