@@ -9,6 +9,7 @@ import {
 } from "@/entities/record/server";
 import { auth } from "@/features/auth/server";
 import { coinFlip } from "@/features/games/coin-flip";
+import { fakeLetter } from "@/features/games/fake-letter";
 import { oddColor } from "@/features/games/odd-color";
 import { paperPlane } from "@/features/games/paper-plane";
 import { poopDodge } from "@/features/games/poop-dodge";
@@ -92,6 +93,13 @@ const savers = new Map<string, GameSaver>([
     {
       save: (input) => saveGameResult(input, paperPlane),
       merge: (input) => mergeGameValue(input, paperPlane),
+    },
+  ],
+  [
+    fakeLetter.id,
+    {
+      save: (input) => saveGameResult(input, fakeLetter),
+      merge: (input) => mergeGameValue(input, fakeLetter),
     },
   ],
 ]);

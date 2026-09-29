@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-// 지금 일정은 week game 없이 cycle game만 있어 하루에 게임이 하나다. 두 개 이상 열리는 일정이 생기면 다시 검사한다.
+// 월요일(2026-09-21)에는 week game과 cycle game이 함께 열린다. 게임이 하나인 날에는 탭 검사를 건너뛴다.
 async function skipUnlessSeveralGames(page: Page) {
   test.skip((await gameTabs(page).count()) < 2, "DAYPLAY_TODAY에 열린 게임이 하나뿐이다.");
 }
@@ -32,11 +32,12 @@ test("분포 막대에 올리거나 focus하면 구간 값과 인원을 겹쳐 �
   await expect(overlay).toBeHidden();
   await bars.first().hover();
   await expect(overlay).toBeVisible();
-  await expect(overlay).toHaveText(/미만 · \d+명/);
+  // 작을수록 좋은 게임은 첫 칸이 "미만", 클수록 좋은 게임은 "초과"다.
+  await expect(overlay).toHaveText(/(미만|초과) · \d+명/);
 
   await page.mouse.move(0, 0);
   await bars.last().focus();
-  await expect(bars.last().locator("span").last()).toHaveText(/이상 · \d+명/);
+  await expect(bars.last().locator("span").last()).toHaveText(/(이상|이하) · \d+명/);
 });
 
 test("오른쪽 영역에 내 최고 기록, 순위, 분포, 참가자를 보여준다", async ({ page }) => {
@@ -49,14 +50,15 @@ test("오른쪽 영역에 내 최고 기록, 순위, 분포, 참가자를 보여
 test("탭을 바꾸면 게임 판과 오른쪽 영역이 그 게임으로 바뀐다", async ({ page }) => {
   await skipUnlessSeveralGames(page);
   const aside = page.getByRole("complementary");
-  const boardBefore = await gameBoard(page).innerText();
+  // 시작 버튼 글자는 게임마다 같아서 게임 이름과 안내가 있는 게임 영역 전체를 비교한다.
+  const boardBefore = await gameSection(page).innerText();
   const asideBefore = await aside.innerText();
 
   await gameTabs(page).nth(1).click();
 
   await expect(gameTabs(page).nth(1)).toHaveAttribute("aria-pressed", "true");
   await expect(gameTabs(page).first()).toHaveAttribute("aria-pressed", "false");
-  await expect(gameBoard(page)).not.toHaveText(boardBefore);
+  await expect(gameSection(page)).not.toHaveText(boardBefore);
   await expect(aside).not.toHaveText(asideBefore);
   await expect(aside.getByRole("heading", { name: "게임 순위" })).toBeVisible();
 });
