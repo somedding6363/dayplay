@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// 2026-09-23(DAYPLAY_TODAY)은 다른 색상 찾기가 열린다. 결과 숫자는 검사하지 않고 흐름만 본다.
+// 2026-09-21(DAYPLAY_TODAY)은 월요일이라 다른 색상 찾기가 첫 탭으로 열린다. 결과 숫자는 검사하지 않고 흐름만 본다.
 const section = (page: Page) => page.getByRole("region", { name: "오늘의 게임" });
 const startButton = (page: Page) =>
   section(page).getByRole("button", { name: "시작", exact: true });
