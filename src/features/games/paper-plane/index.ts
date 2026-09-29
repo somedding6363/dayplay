@@ -1,8 +1,10 @@
 import type { GameDefinition } from "@/entities/game";
 import { paperPlaneRules, type PaperPlaneResult } from "./model/rules";
 import { PaperPlaneGame } from "./ui/PaperPlaneGame";
+import { Thumbnail } from "./ui/Thumbnail";
 
 export const paperPlane: GameDefinition<PaperPlaneResult> = {
   ...paperPlaneRules,
   Component: PaperPlaneGame,
+  Thumbnail,
 };

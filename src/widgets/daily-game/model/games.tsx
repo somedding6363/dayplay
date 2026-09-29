@@ -15,6 +15,8 @@ import type { TodayGame } from "./types";
 // 게임마다 결과 타입이 달라서 등록부에는 결과 타입을 감춘 모양으로 담는다.
 export interface PlayableGame extends TodayGame {
   Component: ComponentType<{ onFinish: (result: unknown) => void }>;
+  // 시작·결과 판에 까는 그림
+  Thumbnail: ComponentType;
   // 방금 끝낸 결과를 게임 판에 보여줄 문자열로 바꾼다. 읽지 못하면 "-".
   format: (result: unknown) => string;
   // 저장된 값만으로 보여준다. 내 최고 기록과 저장 안내에 쓴다.
@@ -35,6 +37,7 @@ function toPlayable<TResult>(game: GameDefinition<TResult>): PlayableGame {
     Component: function PlayableGameComponent({ onFinish }) {
       return <Game onFinish={onFinish} />;
     },
+    Thumbnail: game.Thumbnail,
     format: (result) => {
       const parsed = game.parseResult(result);
       return parsed === null ? "-" : game.formatResult(parsed);

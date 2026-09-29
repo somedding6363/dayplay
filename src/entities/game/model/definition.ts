@@ -10,4 +10,6 @@ export interface GameProps<TResult> {
 export interface GameDefinition<TResult> extends GameRules<TResult> {
   // 마운트되면 바로 play를 시작한다. 시작 전과 끝난 뒤의 게임 판은 플랫폼이 그린다.
   Component: ComponentType<GameProps<TResult>>;
+  // 시작·결과 판 전체에 까는 그림. 게임 색 token으로 칠해 게임마다 자기 색으로 보인다.
+  Thumbnail: ComponentType;
 }
