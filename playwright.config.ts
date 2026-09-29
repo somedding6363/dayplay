@@ -1,20 +1,22 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // 하루에 cycle game이 하나라 게임마다 그 게임이 열리는 날짜로 고정한 서버를 따로 띄운다.
-// 월요일에는 week game(다른 색상 찾기)이 첫 탭으로 함께 열려서, cycle game은 월요일이 아닌 날로 고른다.
+// 월~목에는 week game이 첫 탭으로 함께 열려서, cycle game은 week game이 없는 날로 고른다.
 // 빌드는 test:e2e 스크립트가 한 번만 하고, 서버는 같은 빌드를 날짜만 바꿔 띄운다.
 const servers = [
-  // 월요일이라 게임이 둘(다른 색상 찾기, 반응속도) 열린다. 탭 전환을 검사한다.
+  // 월요일이라 게임이 둘(다른 색상 찾기, 무한 계단 오르기) 열린다. 탭 전환을 검사한다.
   { name: "home", port: 3100, date: "2026-09-21", testMatch: /(home|account)\.spec\.ts/ },
-  { name: "reaction-time", port: 3110, date: "2026-09-29", testMatch: /reaction-time\.spec\.ts/ },
-  { name: "ten-seconds", port: 3101, date: "2026-09-22", testMatch: /ten-seconds\.spec\.ts/ },
+  // week game은 자기 요일에 첫 탭으로 열린다.
   { name: "odd-color", port: 3102, date: "2026-09-21", testMatch: /odd-color\.spec\.ts/ },
-  { name: "stair-climb", port: 3103, date: "2026-09-23", testMatch: /stair-climb\.spec\.ts/ },
-  { name: "coin-flip", port: 3104, date: "2026-09-24", testMatch: /coin-flip\.spec\.ts/ },
-  { name: "racing", port: 3105, date: "2026-09-25", testMatch: /racing\.spec\.ts/ },
-  { name: "poop-dodge", port: 3106, date: "2026-09-26", testMatch: /poop-dodge\.spec\.ts/ },
-  { name: "paper-plane", port: 3107, date: "2026-09-27", testMatch: /paper-plane\.spec\.ts/ },
-  { name: "fake-letter", port: 3111, date: "2026-10-06", testMatch: /fake-letter\.spec\.ts/ },
+  { name: "ten-seconds", port: 3101, date: "2026-09-22", testMatch: /ten-seconds\.spec\.ts/ },
+  { name: "reaction-time", port: 3110, date: "2026-09-23", testMatch: /reaction-time\.spec\.ts/ },
+  { name: "fake-letter", port: 3111, date: "2026-09-24", testMatch: /fake-letter\.spec\.ts/ },
+  // cycle game은 week game이 없는 금~일로 고른다.
+  { name: "paper-plane", port: 3107, date: "2026-09-25", testMatch: /paper-plane\.spec\.ts/ },
+  { name: "stair-climb", port: 3103, date: "2026-09-26", testMatch: /stair-climb\.spec\.ts/ },
+  { name: "coin-flip", port: 3104, date: "2026-09-27", testMatch: /coin-flip\.spec\.ts/ },
+  { name: "racing", port: 3105, date: "2026-10-03", testMatch: /racing\.spec\.ts/ },
+  { name: "poop-dodge", port: 3106, date: "2026-10-04", testMatch: /poop-dodge\.spec\.ts/ },
 ];
 
 export default defineConfig({

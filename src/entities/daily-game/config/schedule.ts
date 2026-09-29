@@ -2,20 +2,21 @@ import type { Schedule } from "../model/types";
 
 // 공개 전까지는 시작일과 항목을 바꿀 수 있다. 공개 후에는 기존 항목을 고치지 말고 미래 날짜의 새 항목을 추가한다.
 export const dailySchedule: Schedule = {
-  week: [{ from: "2026-09-21", games: { mon: ["odd-color"] } }],
+  week: [
+    {
+      from: "2026-09-21",
+      games: {
+        mon: ["odd-color"],
+        tue: ["ten-seconds"],
+        wed: ["reaction-time"],
+        thu: ["fake-letter"],
+      },
+    },
+  ],
   cycle: [
     {
       from: "2026-09-21",
-      games: [
-        "reaction-time",
-        "ten-seconds",
-        "stair-climb",
-        "coin-flip",
-        "racing",
-        "poop-dodge",
-        "paper-plane",
-        "fake-letter",
-      ],
+      games: ["stair-climb", "coin-flip", "racing", "poop-dodge", "paper-plane"],
     },
   ],
 };

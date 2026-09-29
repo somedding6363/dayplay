@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, weekdayOf } from "@/shared/lib";
+import { addDays } from "@/shared/lib";
 import { dailySchedule } from "../config/schedule";
 import { getDailyGames } from "./schedule";
 import type { Schedule } from "./types";
@@ -36,24 +36,26 @@ describe("dailySchedule", () => {
   });
 
   // 공개된 날짜의 결과가 바뀌면 이 테스트가 깨진다. 공개 후에는 기대값을 고치지 말고 일정 변경을 되돌린다.
-  // 공개 전(서비스 시작일 미정)이라 2026-09-29에 다른 색상 찾기를 월요일 week game으로 옮기고,
-  // cycle을 반응속도 → 10초 맞추기 → 무한 계단 오르기 → 동전 앞뒤 맞추기 → 레이싱 → 똥피하기 → 종이비행기 → 가짜 글자 찾기로 다시 정했다.
+  // 공개 전(서비스 시작일 미정)이라 2026-09-29에 week game을 월 다른 색상 찾기, 화 10초 맞추기,
+  // 수 반응속도, 목 가짜 글자 찾기로 두고, cycle을 무한 계단 오르기 → 동전 앞뒤 맞추기 → 레이싱 → 똥피하기 → 종이비행기로 다시 정했다.
   it("이미 정한 날짜의 게임은 바뀌지 않는다", () => {
-    const cycle: Record<string, string> = {
-      "2026-09-21": "reaction-time",
-      "2026-09-22": "ten-seconds",
-      "2026-09-23": "stair-climb",
-      "2026-09-24": "coin-flip",
-      "2026-09-25": "racing",
-      "2026-09-26": "poop-dodge",
-      "2026-09-27": "paper-plane",
-      "2026-09-28": "fake-letter",
-      "2026-09-29": "reaction-time",
+    const expected: Record<string, string[]> = {
+      "2026-09-21": ["odd-color", "stair-climb"],
+      "2026-09-22": ["ten-seconds", "coin-flip"],
+      "2026-09-23": ["reaction-time", "racing"],
+      "2026-09-24": ["fake-letter", "poop-dodge"],
+      "2026-09-25": ["paper-plane"],
+      "2026-09-26": ["stair-climb"],
+      "2026-09-27": ["coin-flip"],
+      "2026-09-28": ["odd-color", "racing"],
+      "2026-09-29": ["ten-seconds", "poop-dodge"],
+      "2026-09-30": ["reaction-time", "paper-plane"],
     };
-    for (const [day, gameId] of Object.entries(cycle)) {
-      // weekdayOf는 일요일이 0이라 월요일은 1이다.
-      const week = weekdayOf(day) === 1 ? [{ gameId: "odd-color", kind: "week" }] : [];
-      expect(getDailyGames(dailySchedule, day), day).toEqual([...week, { gameId, kind: "cycle" }]);
+    for (const [day, gameIds] of Object.entries(expected)) {
+      expect(
+        getDailyGames(dailySchedule, day).map((game) => game.gameId),
+        day,
+      ).toEqual(gameIds);
     }
   });
 });
