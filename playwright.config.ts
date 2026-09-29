@@ -13,10 +13,11 @@ const servers = [
   { name: "fake-letter", port: 3111, date: "2026-09-24", testMatch: /fake-letter\.spec\.ts/ },
   // cycle game은 week game이 없는 금~일로 고른다.
   { name: "paper-plane", port: 3107, date: "2026-09-25", testMatch: /paper-plane\.spec\.ts/ },
-  { name: "stair-climb", port: 3103, date: "2026-09-26", testMatch: /stair-climb\.spec\.ts/ },
-  { name: "coin-flip", port: 3104, date: "2026-09-27", testMatch: /coin-flip\.spec\.ts/ },
-  { name: "racing", port: 3105, date: "2026-10-03", testMatch: /racing\.spec\.ts/ },
-  { name: "poop-dodge", port: 3106, date: "2026-10-04", testMatch: /poop-dodge\.spec\.ts/ },
+  { name: "stair-climb", port: 3103, date: "2026-09-27", testMatch: /stair-climb\.spec\.ts/ },
+  { name: "coin-flip", port: 3104, date: "2026-10-04", testMatch: /coin-flip\.spec\.ts/ },
+  { name: "racing", port: 3105, date: "2026-10-11", testMatch: /racing\.spec\.ts/ },
+  { name: "poop-dodge", port: 3106, date: "2026-10-18", testMatch: /poop-dodge\.spec\.ts/ },
+  { name: "jump-rope", port: 3113, date: "2026-09-26", testMatch: /jump-rope\.spec\.ts/ },
 ];
 
 export default defineConfig({

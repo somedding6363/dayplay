@@ -37,7 +37,7 @@ describe("dailySchedule", () => {
 
   // 공개된 날짜의 결과가 바뀌면 이 테스트가 깨진다. 공개 후에는 기대값을 고치지 말고 일정 변경을 되돌린다.
   // 공개 전(서비스 시작일 미정)이라 2026-09-29에 week game을 월 다른 색상 찾기, 화 10초 맞추기,
-  // 수 반응속도, 목 가짜 글자 찾기로 두고, cycle을 무한 계단 오르기 → 동전 앞뒤 맞추기 → 레이싱 → 똥피하기 → 종이비행기로 다시 정했다.
+  // 수 반응속도, 목 가짜 글자 찾기로 두고, cycle을 무한 계단 오르기 → 동전 앞뒤 맞추기 → 레이싱 → 똥피하기 → 종이비행기 → 줄넘기로 다시 정했다.
   it("이미 정한 날짜의 게임은 바뀌지 않는다", () => {
     const expected: Record<string, string[]> = {
       "2026-09-21": ["odd-color", "stair-climb"],
@@ -45,11 +45,11 @@ describe("dailySchedule", () => {
       "2026-09-23": ["reaction-time", "racing"],
       "2026-09-24": ["fake-letter", "poop-dodge"],
       "2026-09-25": ["paper-plane"],
-      "2026-09-26": ["stair-climb"],
-      "2026-09-27": ["coin-flip"],
-      "2026-09-28": ["odd-color", "racing"],
-      "2026-09-29": ["ten-seconds", "poop-dodge"],
-      "2026-09-30": ["reaction-time", "paper-plane"],
+      "2026-09-26": ["jump-rope"],
+      "2026-09-27": ["stair-climb"],
+      "2026-09-28": ["odd-color", "coin-flip"],
+      "2026-09-29": ["ten-seconds", "racing"],
+      "2026-09-30": ["reaction-time", "poop-dodge"],
     };
     for (const [day, gameIds] of Object.entries(expected)) {
       expect(
