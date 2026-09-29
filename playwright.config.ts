@@ -15,6 +15,7 @@ const servers = [
   { name: "coin-flip", port: 3104, date: "2026-09-25", testMatch: /coin-flip\.spec\.ts/ },
   { name: "racing", port: 3105, date: "2026-09-26", testMatch: /racing\.spec\.ts/ },
   { name: "poop-dodge", port: 3106, date: "2026-09-27", testMatch: /poop-dodge\.spec\.ts/ },
+  { name: "paper-plane", port: 3107, date: "2026-09-28", testMatch: /paper-plane\.spec\.ts/ },
 ];
 
 export default defineConfig({
